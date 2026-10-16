@@ -1,0 +1,67 @@
+<article
+  class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+>
+  <div>
+    <div
+      class="relative w-full aspect-square rounded-lg bg-surface-container-low overflow-hidden mb-space-sm flex items-center justify-center"
+    >
+      <img
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        src="{{ product.image_url }}"
+        alt="{{ product.name }}"
+      />
+      <div class="absolute top-2 left-2">
+        <span
+          class="px-2 py-0.5 rounded bg-primary-container text-surface-bright font-label-sm text-label-sm"
+          >{{ product.badge }}</span
+        >
+      </div>
+      <button
+        aria-label="Tambah {{ product.name }} ke wishlist"
+        class="absolute top-2 right-2 w-8 h-8 rounded-full bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center text-on-tertiary-container shadow-sm hover:scale-110 transition-transform"
+      >
+        <span class="material-symbols-outlined text-body-lg">favorite</span>
+      </button>
+    </div>
+    <div
+      class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1"
+    >
+      <span>{{ product.category }}</span>
+      <span class="text-secondary font-bold">Stok: {{ product.stock }}</span>
+    </div>
+    <h3
+      class="font-title-md text-title-md text-on-surface font-bold leading-tight group-hover:text-secondary transition-colors mb-2 line-clamp-2"
+    >
+      {{ product.name }}
+    </h3>
+    <div class="flex items-center gap-1.5 mb-3">
+      <div class="flex text-secondary-container">
+        {% for _ in range(5) %}<span
+          class="material-symbols-outlined text-body-md material-symbols-filled"
+          >star</span
+        >{% endfor %}
+      </div>
+      <span class="font-label-sm text-label-sm text-on-surface-variant"
+        >{{ product.rating }}</span
+      >
+    </div>
+  </div>
+  <div class="pt-space-sm flex flex-col gap-space-sm">
+    <span class="font-price-lg text-price-lg text-secondary font-bold"
+      >{{ product.price }}</span
+    >
+    <div class="grid grid-cols-2 gap-2">
+      <a
+        class="py-2 text-center rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-title-md text-title-md text-sm transition-colors"
+        href="#"
+        >Detail</a
+      >
+      <button
+        class="py-2 rounded-lg bg-secondary-container hover:bg-secondary-fixed-dim text-on-secondary-container font-title-md text-title-md text-sm flex items-center justify-center gap-1 transition-all shadow-sm"
+      >
+        <span class="material-symbols-outlined text-body-md">shopping_cart</span
+        ><span>+ Keranjang</span>
+      </button>
+    </div>
+  </div>
+</article>

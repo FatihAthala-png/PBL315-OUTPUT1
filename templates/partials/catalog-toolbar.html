@@ -1,0 +1,111 @@
+<section
+  class="max-w-7xl mx-auto px-6 lg:px-12 w-full pt-space-xs pb-space-md"
+  id="product-catalog"
+>
+  <div
+    class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm pb-space-sm"
+  >
+    <nav
+      class="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant overflow-x-auto whitespace-nowrap py-1"
+    >
+      <a
+        class="hover:text-primary transition-colors"
+        data-path="beranda-promo"
+        href="{{ url_for('home') }}"
+        >Beranda</a
+      >
+      <span class="material-symbols-outlined text-label-sm text-outline-variant"
+        >chevron_right</span
+      >
+      <span class="hover:text-primary transition-colors cursor-pointer"
+        >Katalog Produk</span
+      >
+      <span class="material-symbols-outlined text-label-sm text-outline-variant"
+        >chevron_right</span
+      >
+      <span class="text-on-surface font-semibold"
+        >{{ breadcrumb_label }}</span
+      >
+    </nav>
+    <div class="flex items-center gap-space-sm shrink-0">
+      <span
+        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider"
+        >Tampilan:</span
+      >
+      <div class="flex items-center bg-surface-container-low rounded-lg p-0.5">
+        <button
+          aria-label="Grid view"
+          class="p-1.5 rounded bg-surface-container-lowest text-primary shadow-sm hover:text-primary"
+          id="view-grid-btn"
+        >
+          <span class="material-symbols-outlined text-body-lg">grid_view</span>
+        </button>
+        <button
+          aria-label="List view"
+          class="p-1.5 rounded text-on-surface-variant hover:text-on-surface"
+          id="view-list-btn"
+        >
+          <span class="material-symbols-outlined text-body-lg">view_list</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Active Filter Chips & Sorting Control -->
+  <div
+    class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md"
+  >
+    <div class="flex flex-wrap items-center gap-space-xs">
+      <span
+        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mr-space-xs"
+        >Filter Aktif:</span
+      >
+      <span
+        class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors cursor-pointer"
+      >
+        Semua Kategori
+        <span class="material-symbols-outlined text-label-md">close</span>
+      </span>
+      <span
+        class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors cursor-pointer"
+      >
+        Stok Tersedia
+        <span class="material-symbols-outlined text-label-md">close</span>
+      </span>
+      <span
+        class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors cursor-pointer"
+      >
+        Rp 50rb - Rp 3.5jt
+        <span class="material-symbols-outlined text-label-md">close</span>
+      </span>
+      <button
+        class="font-label-sm text-label-sm text-on-tertiary-container hover:underline px-2 py-1"
+      >
+        Reset Semua
+      </button>
+    </div>
+    <div class="flex items-center justify-between md:justify-end gap-space-md">
+      <span
+        class="font-body-sm text-body-sm text-on-surface-variant whitespace-nowrap"
+      >
+        Menampilkan <strong class="text-on-surface">12</strong> dari 128 Koleksi
+        Pilihan
+      </span>
+      <div class="relative">
+        <select
+          class="bg-surface-container-low text-on-surface font-title-md text-title-md rounded-lg pl-3 pr-8 py-2 appearance-none focus:outline-none cursor-pointer"
+          id="sort-selector"
+        >
+          <option value="popular">Urutkan: Paling Populer</option>
+          <option value="price-low">Harga: Terendah ke Tertinggi</option>
+          <option value="price-high">Harga: Tertinggi ke Terendah</option>
+          <option value="newest">Rilis Terbaru</option>
+          <option value="rating">Rating Tertinggi</option>
+        </select>
+        <span
+          class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-body-md"
+          >unfold_more</span
+        >
+      </div>
+    </div>
+  </div>
+</section>

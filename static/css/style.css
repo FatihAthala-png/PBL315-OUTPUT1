@@ -1,0 +1,48 @@
+/* Gaya dasar PokéVault. */
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    overscroll-behavior: none;
+  }
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+::-webkit-scrollbar {
+  display: none;
+}
+
+.material-symbols-filled {
+  font-variation-settings: "FILL" 1;
+}
+
+.nav-link.active,
+.nav-button.active {
+  background-color: #d3e4fe !important;
+  color: #0b1c30 !important;
+  border-radius: 0.5rem;
+  border: 0;
+  outline: 0;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.nav-link.active:hover,
+.nav-button.active:hover {
+  background-color: #d3e4fe !important;
+  color: #0b1c30 !important;
+  border: 0;
+  outline: 0;
+}
+
+#product-catalog {
+  scroll-margin-top: 11rem;
+}
