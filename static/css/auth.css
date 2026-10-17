@@ -1,0 +1,5 @@
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  background: linear-gradient(135deg, #bfdbfe 0%, #fecaca 100%);
+  background-attachment: fixed;
+}
