@@ -1,2 +1,6 @@
 Flask
 mysql-connector-python
+python-dotenv
+Flask-WTF
+Pillow
+gunicorn

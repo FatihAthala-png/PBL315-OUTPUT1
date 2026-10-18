@@ -1,5 +1,5 @@
 ---
-name: Collector-Grade TCG & Figure Vault
+name: KAMISTORE Design System
 colors:
   surface: '#f8f9ff'
   surface-dim: '#cbdbf5'
@@ -140,82 +140,106 @@ spacing:
   space-xl: 2.5rem
 ---
 
-## Brand & Style
+# KAMISTORE Design System
 
-This design system defines an authoritative, high-energy collector platform. It merges the precision of fine-art archival vaults with the electric dynamism of competitive Pokémon card play and authentic Japanese scale figures. The audience spans competitive TCG players, sealed-product investors, and discerning figure collectors who demand proof of authenticity, pristine grading standards, and instant transactional efficiency.
+Dokumen ini menjelaskan tampilan yang **benar-benar dipakai** di kode (`templates/`, `static/`). Token di bagian frontmatter di atas sama dengan konfigurasi Tailwind di `static/js/app.js` (nama kelas seperti `bg-surface`, `text-on-surface`, `font-heading`). Selain token itu, halaman memakai kelas bawaan Tailwind (`slate`, `blue`, `red`) yang dijelaskan di bawah.
 
-The aesthetic fuses **Modern Glassmorphic Precision** with **Tactile Collector Cues**:
-- Surfaces remain crystalline and high-contrast, pairing crisp off-white canvas spaces (`#F8FAFC`) with deep navy archival structural headers (`#0F172A`).
-- Energetic accents evoke classic mechanics: Electric Amber channels rare card foils and primary calls-to-action; Poké-Ball Crimson conveys urgency, rarity badges, and live drops; Electric Cyan mirrors pristine holographic card sheen.
-- Micro-interactions are snappy, crisp, and mechanical, instilling confidence in high-value cart transactions and card condition transparency.
+## Brand & Gaya
 
-## Colors
+KAMISTORE adalah toko kurasi Pokémon TCG dan action figure asli Jepang untuk pasar Indonesia. Tampilannya bersih, terang, dan ramah: latar putih kebiruan, kartu putih dengan border tipis, dan aksen **biru** serta **merah** yang kuat. Logo memakai kombinasi merah "KAMI" dan biru "STORE", dan pola ini diulang di judul halaman.
 
-The palette establishes an ultra-clean, legible e-commerce storefront anchored by deep archival navy and high-voltage accents:
+- Nuansa: cerah, rapi, mudah dipindai. Tidak ada tema gelap pada halaman utama.
+- Hiasan khas: bentuk geometris berwarna (lengkung merah, roda gigi kuning, tangga hijau dan pink) pada bagian Welcome, serta panel pink untuk "Most Popular Items".
+- Interaksi: transisi 300 ms, kartu terangkat saat hover, gambar membesar pelan (`scale-105`).
 
-- **Primary (`#0F172A`)**: Rich Midnight Navy used for headers, primary typography, high-impact buttons, and critical framing borders.
-- **Secondary (`#F59E0B`)**: Electric Amber for primary interaction buttons, price highlights, and card foil highlights. Supported by `#FBBF24` for hover states and `#B45309` for accessible high-contrast text on bright backgrounds.
-- **Tertiary (`#EF4444`)**: Poké-Ball Crimson reserved for discount badges, "Pre-Order" warnings, out-of-stock indicators, and active live-stock pips.
-- **Accent Cyan (`#06B6D4`)**: Card grading indicators (PSA/BGS ratings), secret rare ribbons, and TCG foil shimmer borders.
-- **Neutral Canvas**: Surface foundation sits on Crisp Slate (`#F8FAFC`) with pure white (`#FFFFFF`) card surfaces and razor-sharp border strokes (`#E2E8F0`). Text scales from Slate-900 (`#0F172A`) down to Slate-500 (`#64748B`) for technical specifications.
+## Warna
 
-## Typography
+| Peran | Nilai | Dipakai untuk |
+|---|---|---|
+| Latar halaman (`surface`) | `#f8f9ff` | Background `body` |
+| Kartu / panel | `#ffffff` | Kartu produk, filter, form |
+| Border | `slate-200` | Border kartu dan panel |
+| Teks utama | `on-surface` `#0b1c30`, `slate-900` | Judul, harga |
+| Teks sekunder | `slate-600` / `slate-500` | Nama produk, keterangan |
+| **Biru** `blue-600` / `blue-700` | `#2563eb` / `#1d4ed8` | Tombol aksi, link, kategori produk, filter terpilih |
+| Biru muda `sky-100` | `#e0f2fe` | Tombol "Add to cart", chip filter aktif |
+| **Merah** `red-600` / `red-500` | `#dc2626` / `#ef4444` | Aksen judul, badge diskon, wishlist aktif, Reset |
+| Kuning | `#ffec99`, `amber-400` | Banner Welcome, bintang rating |
+| Footer | `primary-container` `#131b2e` | Latar footer (satu-satunya area gelap) |
 
-The typography couples the geometric energy of **Plus Jakarta Sans** for headlines, product nomenclature, and numeric pricing with the utilitarian legibility of **Inter** for descriptions, specifications, and data tables.
+Aturan pakai:
+- Satu halaman = satu aksen utama. Judul memakai teks gelap dengan **satu kata merah** (contoh: "Shop By **Category**", "All **Product**").
+- Biru untuk hal yang bisa diklik dan dipilih; merah hanya untuk diskon, peringatan, dan status aktif seperti wishlist.
+- Warna amber/oranye lama sudah tidak dipakai di katalog.
 
-All monetary values (Rupiah / Rp) and collector grades (PSA 10, Ungraded, 1/151) utilize tabular figures (`font-variant-numeric: tabular-nums`) within Plus Jakarta Sans to prevent layout jitter during live auction updates or price filtering. Product card titles retain a strict 2-line clamp with a 1.25 line-height ratio to preserve vertical rhythm across uneven product naming lengths.
+## Tipografi
 
-## Layout & Spacing
+- **Plus Jakarta Sans** (`font-heading`): judul, nama bagian, harga, tombol penting. Bobot 700–800.
+- **Inter**: teks isi, deskripsi, label formulir.
+- Ukuran judul halaman: `text-2xl` di HP, `text-3xl` di desktop, `font-extrabold`.
+- Nama produk: `text-sm`, maksimal 2 baris (`line-clamp-2`). Harga: `font-heading text-base font-bold`.
+- Label kecil (filter, badge): `text-xs` atau `text-[10px]–[11px]`, huruf kapital dengan `tracking-wider` untuk judul kelompok filter.
+- Ikon memakai **Material Symbols Outlined**; ikon terisi (hati aktif, bintang) lewat `material-symbols-filled`.
 
-The layout operates on a desktop-first 1440px viewport using a 12-column fluid grid system bounded by a max-width container of 1360px:
+## Tata Letak & Spasi
 
-- **Sidebar & Catalog Architecture**: A 3-column sticky left rail (`280px` fixed or 3 grid columns) houses multi-tiered filters (TCG rarity, set expansion, condition grading, figure scale, manufacturer), while the remaining 9 columns house the product catalog in a 3-column or 4-column card matrix.
-- **Rhythm**: Spacing enforces an 8pt spatial cadence. Inner card paddings rely strictly on `space-md` (16px), while layout gutters maintain a firm 24px (`space-lg`) to balance information density with clean white space.
-- **Header & Navigation**: Fixed 72px dark navy utility bar hosting integrated search, category dropdown mega-menus, user collection vaults, and live cart slide-over indicators.
+- Kontainer: `max-w-7xl mx-auto px-6 lg:px-12` pada setiap section, jadi tepi kiri-kanan selalu sejajar.
+- Header `fixed` setinggi sekitar 128 px (desktop) atau 168 px (HP), sehingga `main` diberi `pt-32` / `pt-[10.5rem]`.
+- Jarak antar section memakai token `space-md` (1 rem), `space-lg` (1.5 rem), `space-xl` (2.5 rem).
+- **Katalog (All Product)**: grid 12 kolom. Sidebar filter 3 kolom (sticky, `top-36`), produk 9 kolom. Kartu 2 kolom di HP, 2 kolom di tablet, 3 kolom di `xl`. Di bawah `lg` sidebar disembunyikan dan dibuka lewat tombol **Filter**.
+- **Beranda**: Hero (carousel + 2 banner) → Welcome → Most Popular Items (carousel horizontal) → Shop By Category (tab + grid 2–3 kolom).
 
-## Elevation & Depth
+## Bentuk & Elevasi
 
-Visual hierarchy combines clean architectural layering with subtle holographic and glassmorphic depth:
+- Kartu produk, kartu kategori, panel filter, bar filter aktif: `rounded-2xl` + `border border-slate-200` + latar putih.
+- Input, tombol, dropdown: `rounded-xl` atau `rounded-lg`.
+- Chip filter aktif: `rounded-full`.
+- Kartu login/register: `rounded-[2rem]` dengan `shadow-xl`.
+- Hover kartu: naik 4 px (`-translate-y-1`), border menjadi `slate-300`, bayangan `0 16px 36px rgba(15,23,42,0.12)`.
+- Header: putih 95% + `backdrop-blur-xl` dan bayangan tipis; footer gelap.
 
-- **Level 0 (Canvas)**: `#F8FAFC` flat matte base.
-- **Level 1 (Catalog Tiles & Panels)**: `#FFFFFF` surface with a micro-border `1px solid #E2E8F0` paired with an ambient shadow `0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.03)`.
-- **Level 2 (Active Product Cards & Flyouts)**: On hover, cards float with `translateY(-4px)` accompanied by `0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04)` and an optional electric amber outline (`rgba(245, 158, 11, 0.3)`).
-- **Level 3 (Sticky Headers & Overlays)**: Header navigation and modal drawers utilize dark glassmorphism: `#0F172A` at 92% opacity with `backdrop-filter: blur(12px)` and bottom border `1px solid rgba(255, 255, 255, 0.08)`.
-- **Collector Badge Shimmer**: Rare Holo and PSA 10 badges incorporate an ultra-subtle linear gradient sheen (`linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%)`) simulating foil card reflection.
+## Komponen
 
-## Shapes
+### Header & Navigasi
+Logo di kiri, kolom pencarian di tengah, ikon wishlist / akun / keranjang di kanan. Menu (**Beranda / Promo**, **All Product**, **Cek Resi & Pesanan**) berada di baris kedua dan bisa digeser horizontal di HP. Menu aktif: latar `#d3e4fe`, teks `#0b1c30`, bobot 600 (kelas `.nav-button.active`).
 
-The design system adopts a balanced **Rounded (`2`)** shape vocabulary:
+### Kartu Produk
+Dipakai di katalog dan konsisten dengan kartu di Beranda (`partials/product-card.html`).
+- Area gambar `h-44 md:h-52`, gradasi `slate-50` ke putih, gambar `object-contain`.
+- Badge (mis. BEST SELLER) di kiri atas: `bg-slate-900/85`, teks putih, 10 px kapital.
+- Tombol wishlist (hati) di kanan atas: `text-slate-500`, saat aktif `text-red-500` dengan ikon terisi.
+- Info: kategori (`text-xs font-bold text-blue-600`) dan stok, nama produk, rating (bintang `amber-400`), harga coret + badge `% OFF` merah bila ada diskon, lalu harga.
+- Tombol **Add to cart**: `bg-sky-100 text-blue-700`, hover `sky-200`. Setelah diklik berubah menjadi biru solid "Ditambahkan!" selama 1,8 detik.
+- Mode **List**: kartu menjadi horizontal (gambar 13 rem di kiri) di layar `sm` ke atas.
 
-- **Base Radius**: 8px (`0.5rem`) applied to input fields, buttons, small badges, and dropdown menus.
-- **Large Radius**: 16px (`1rem`) applied to product showcase cards, filter containers, and informational banners.
-- **Pill Treatment (`rounded-full`)**: Strictly reserved for contextual metadata badges (e.g., "Ready Stock", "1/7 Scale", "Booster Box"), category quick-filter pills, and avatar/cart counters.
+### Toolbar Katalog
+Judul "All **Product**", tombol Filter (HP), pilihan tampilan Grid / List (aktif: `bg-blue-600 text-white`), lalu bar putih berisi chip **Filter Aktif**, jumlah hasil, dan dropdown urutan (Populer, Harga naik/turun, Terbaru, Rating).
 
-## Components
+### Sidebar Filter
+Panel putih `rounded-2xl`, header "Filter Koleksi" dengan ikon `tune` biru dan tombol Reset merah. Kelompok: Jenis Produk, Kategori (mengikuti jenis yang dipilih), Rentang Harga, Ketersediaan, Card Rarity & Grade, Brand & Produsen. Setiap kelompok dipisah garis `slate-100`.
+- Checkbox memakai `accent-blue-600` dengan jumlah produk di kanan.
+- Chip rarity: tidak terpilih `slate-50`, terpilih `bg-blue-600 text-white`.
+- Slider harga ganda: jalur `slate-200`, bagian terpilih `blue-600`, thumb putih berborder `#2563eb`. Ada input Min/Max berawalan "Rp" dan preset (<100rb, 100rb–500rb, 500rb–1,5jt, >1,5jt).
+- Filter juga bisa dipilih lewat URL, mis. `/semua-produk?type=tcg`.
 
-### Buttons
-- **Primary CTA ("Tambah ke Keranjang")**: Background `#F59E0B`, text `#0F172A` bold. Hover transition to `#FBBF24` with a subtle elevation shift. Contains integrated cart icon on the left.
-- **Secondary Action ("Lihat Detail / Vault")**: Border `1.5px solid #0F172A`, transparent background, text `#0F172A`. On hover: solid `#0F172A` fill with `#FFFFFF` text.
-- **Wishlist Quick-Action**: Floating circular button (36x36px) top right of product image; white glass background (`rgba(255, 255, 255, 0.9)`), border `#E2E8F0`, crimson heart stroke `#EF4444` filling on active state.
+### Tombol
+- **Aksi utama**: `bg-blue-600 text-white`, hover `blue-700` (contoh: "Jelajahi Sekarang").
+- **Sekunder**: `border border-blue-600 text-blue-600`, hover terisi biru (contoh: "See All Products", "Reset Filter").
+- **Aksi cepat dalam kartu**: `bg-sky-100 text-blue-700` (Add to cart).
+- **Teks bahaya/reset**: `text-red-600`, hover garis bawah.
 
-### Product Card
-- **Structure**: Outer card `16px` border radius, `#FFFFFF` fill, `1px solid #E2E8F0`.
-- **Top Badge Zone**: Floats over product photo. Left: Category Tag (`#0F172A` background, `#FFFFFF` text). Right: Condition/Stock Tag (e.g., "Holo Rare" in Cyan tint `#ECFEFF` with text `#0891B2`, or "Ready Stock" in emerald `#ECFDF5` / `#059669`).
-- **Image Container**: Aspect ratio 1:1 for figures, 3:4 for TCG slabs/singles, set against neutral `#F1F5F9` podium framing with smooth image scaling on card hover.
-- **Information Cluster**: Category breadcrumb in `#64748B` (12px), title in `#0F172A` (16px semi-bold), 5-star rating chip with numeric review count `(128)`, and bold Rupiah currency display in `#B45309` (e.g., `Rp 1.450.000`).
+### Form Login & Register
+Kartu putih besar dua kolom (logo di kiri, form di kanan). Judul "**Login**" dengan aksen merah dan biru. Input memakai label mengambang, `rounded-xl`, `border-slate-300`, fokus `border-red-600` dengan ring `red-100`. Pada register, kata sandi harus minimal 8 karakter dan memuat huruf besar, huruf kecil, angka, dan simbol.
 
-### Category Filter Pills & Checkbox Trees
-- **Pills**: Horizontal scrolling cluster at catalog head. Inactive: `#FFFFFF` fill, `#E2E8F0` border, text `#475569`. Active: `#0F172A` fill, text `#FFFFFF` with check icon.
-- **Checkbox Trees**: Nested tree with custom 18px square checkboxes. Checked state: `#0F172A` fill with crisp white checkmark. Hover: border `#F59E0B`. Includes numeric count badges aligned right (e.g., `(42)`).
+### Carousel & Banner
+Hero memakai carousel 3 slide (titik indikator putih, panah bulat putih) dan dua banner di kanan. Most Popular Items berupa carousel scroll horizontal dengan snap, kartu selebar 14–15 rem.
 
-### Price Range Slider & Inputs
-- Dual thumb slider track in `#E2E8F0` with the active selected span highlighted in Electric Amber (`#F59E0B`).
-- Dual Rupiah currency inputs below the track prefixed with static gray "Rp" labels, numeric alignment right, and focus rings tinted in Amber.
+### Footer
+Latar `#131b2e`, teks `slate-300/400`, judul kolom putih kapital, kolom: info toko, Navigasi Kolektor, serta logo mitra Pembayaran (BCA, BNI, BRI, Mandiri, QRIS) dan Pengiriman (JNE, J&T, SiCepat).
 
-### Search Bar & Autocomplete
-- Large 48px height input within navigation. Background `rgba(255, 255, 255, 0.08)` on dark header, border `1px solid rgba(255, 255, 255, 0.15)`. Text `#FFFFFF`, placeholder `#94A3B8`.
-- Live dropdown panel (`#FFFFFF`, elevated Level 3) with grouped results: "Kartu Populer", "Action Figure Terlaris", and direct card suggestions displaying mini-thumbnail, set symbol, and instant price tag.
+## Aksesibilitas & Responsif
 
-### Cart Counter & User Profile
-- Dark utility header hosts cart icon with an absolute badge in Poké-Crimson (`#EF4444`), white bold text, pulsing briefly upon item addition.
-- User profile module includes circular avatar with gold status border indicating VIP collector tier.
+- Titik henti: HP (default), `sm` 640, `md` 768, `lg` 1024, `xl` 1280.
+- Tombol ikon wajib punya `aria-label`. Menu aktif memakai `aria-current="page"`, wishlist memakai `aria-pressed`.
+- Fokus terlihat pada input (ring) dan chip rarity (`peer-focus-visible:ring-2`).
+- Hindari menyampaikan status hanya dengan warna: diskon selalu disertai teks `% OFF`, wishlist aktif juga mengubah ikon menjadi terisi.
