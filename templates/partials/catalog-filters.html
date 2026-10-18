@@ -1,0 +1,249 @@
+{% macro checkbox_list(group, options) %}
+<div
+  class="flex flex-col gap-2 text-sm text-slate-600"
+>
+  {% for opt in options %}
+  <label
+    class="flex items-center justify-between cursor-pointer hover:text-slate-900"
+    {% if opt.type %}data-parent="{{ opt.type }}"{% endif %}
+  >
+    <span class="flex items-center gap-2">
+      <input
+        type="checkbox"
+        autocomplete="off"
+        data-filter-group="{{ group }}"
+        value="{{ opt.key }}"
+        data-label="{{ opt.label }}"
+        class="h-4 w-4 cursor-pointer rounded accent-blue-600"
+      />
+      {{ opt.label }}
+    </span>
+    <span class="text-xs text-slate-400">{{ opt.count }}</span>
+  </label>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+<aside
+  id="catalog-filters"
+  data-price-min="{{ filters.price.min }}"
+  data-price-max="{{ filters.price.max }}"
+  class="hidden lg:flex lg:col-span-3 w-full rounded-2xl border border-slate-200 bg-white p-5 lg:sticky lg:top-36 flex-col gap-5 lg:max-h-[calc(100vh-10rem)] lg:overflow-y-auto"
+>
+  <!-- Header -->
+  <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+    <div class="flex items-center gap-2 text-slate-900">
+      <span class="material-symbols-outlined text-2xl text-blue-600"
+        >tune</span
+      >
+      <span class="font-heading text-lg font-extrabold"
+        >Filter Koleksi</span
+      >
+    </div>
+    <button
+      type="button"
+      data-reset-filters
+      class="text-xs font-bold text-red-600 hover:underline"
+    >
+      Reset
+    </button>
+  </div>
+
+  <!-- Jenis Produk -->
+  {% if filters.types %}
+  <div class="flex flex-col gap-3">
+    <span
+      class="text-[11px] font-bold uppercase tracking-wider text-slate-900"
+      >Jenis Produk</span
+    >
+    {{ checkbox_list('type', filters.types) }}
+  </div>
+  {% endif %}
+
+  <!-- Sub Kategori -->
+  {% if filters.sub %}
+  <div class="flex flex-col gap-3 border-t border-slate-100 pt-5">
+    <span
+      class="text-[11px] font-bold uppercase tracking-wider text-slate-900"
+      >Kategori</span
+    >
+    {{ checkbox_list('sub', filters.sub) }}
+  </div>
+  {% endif %}
+
+  <!-- Harga -->
+  <div class="flex flex-col gap-3 border-t border-slate-100 pt-5">
+    <div class="flex items-center justify-between">
+      <span
+        class="text-[11px] font-bold uppercase tracking-wider text-slate-900"
+        >Rentang Harga (Rp)</span
+      >
+      <span class="text-xs font-bold text-blue-600"
+        >IDR</span
+      >
+    </div>
+
+    <div class="dual-range my-2">
+      <div
+        class="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1.5 bg-slate-200 rounded-full"
+      ></div>
+      <div
+        id="price-fill"
+        class="absolute top-1/2 -translate-y-1/2 h-1.5 bg-blue-600 rounded-full"
+        style="left: 0; width: 100%"
+      ></div>
+      <input
+        id="price-min-range"
+        type="range"
+        min="{{ filters.price.min }}"
+        max="{{ filters.price.max }}"
+        step="5000"
+        value="{{ filters.price.min }}"
+        autocomplete="off"
+        aria-label="Harga minimum"
+      />
+      <input
+        id="price-max-range"
+        type="range"
+        min="{{ filters.price.min }}"
+        max="{{ filters.price.max }}"
+        step="5000"
+        value="{{ filters.price.max }}"
+        autocomplete="off"
+        aria-label="Harga maksimum"
+      />
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div class="flex flex-col">
+        <span class="text-xs text-slate-500"
+          >Min</span
+        >
+        <div
+          class="flex items-center rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 focus-within:border-blue-600"
+        >
+          <span class="mr-1 text-xs font-bold text-slate-500"
+            >Rp</span
+          >
+          <input
+            id="price-min-input"
+            class="w-full bg-transparent text-sm font-semibold text-slate-900 focus:outline-none"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            value="{{ filters.price.min }}"
+          />
+        </div>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-xs text-slate-500"
+          >Max</span
+        >
+        <div
+          class="flex items-center rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 focus-within:border-blue-600"
+        >
+          <span class="mr-1 text-xs font-bold text-slate-500"
+            >Rp</span
+          >
+          <input
+            id="price-max-input"
+            class="w-full bg-transparent text-sm font-semibold text-slate-900 focus:outline-none"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            value="{{ filters.price.max }}"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-1.5 pt-1">
+      <button
+        type="button"
+        data-preset
+        data-min="0"
+        data-max="100000"
+        class="rounded-lg bg-slate-50 px-2 py-1 text-xs text-slate-600 transition-colors hover:bg-sky-100 hover:text-blue-700"
+      >
+        &lt; 100rb
+      </button>
+      <button
+        type="button"
+        data-preset
+        data-min="100000"
+        data-max="500000"
+        class="rounded-lg bg-slate-50 px-2 py-1 text-xs text-slate-600 transition-colors hover:bg-sky-100 hover:text-blue-700"
+      >
+        100rb - 500rb
+      </button>
+      <button
+        type="button"
+        data-preset
+        data-min="500000"
+        data-max="1500000"
+        class="rounded-lg bg-slate-50 px-2 py-1 text-xs text-slate-600 transition-colors hover:bg-sky-100 hover:text-blue-700"
+      >
+        500rb - 1.5jt
+      </button>
+      <button
+        type="button"
+        data-preset
+        data-min="1500000"
+        data-max="max"
+        class="rounded-lg bg-slate-50 px-2 py-1 text-xs text-slate-600 transition-colors hover:bg-sky-100 hover:text-blue-700"
+      >
+        &gt; 1.5jt
+      </button>
+    </div>
+  </div>
+
+  <!-- Ketersediaan -->
+  {% if filters.availability %}
+  <div class="flex flex-col gap-3 border-t border-slate-100 pt-5">
+    <span
+      class="text-[11px] font-bold uppercase tracking-wider text-slate-900"
+      >Ketersediaan</span
+    >
+    {{ checkbox_list('availability', filters.availability) }}
+  </div>
+  {% endif %}
+
+  <!-- Rarity & Grade -->
+  {% if filters.rarity %}
+  <div class="flex flex-col gap-3 border-t border-slate-100 pt-5">
+    <span
+      class="text-[11px] font-bold uppercase tracking-wider text-slate-900"
+      >Card Rarity &amp; Grade</span
+    >
+    <div class="flex flex-wrap gap-1.5">
+      {% for opt in filters.rarity %}
+      <label class="cursor-pointer">
+        <input
+          type="checkbox"
+          autocomplete="off"
+          class="peer sr-only"
+          data-filter-group="rarity"
+          value="{{ opt.key }}"
+          data-label="{{ opt.label }}"
+        />
+        <span
+          class="block rounded-lg bg-slate-50 px-2.5 py-1 text-xs text-slate-600 transition-all hover:bg-sky-100 hover:text-blue-700 peer-checked:bg-blue-600 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600"
+          >{{ opt.label }} ({{ opt.count }})</span
+        >
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Brand -->
+  {% if filters.brand %}
+  <div class="flex flex-col gap-3 border-t border-slate-100 pt-5">
+    <span
+      class="text-[11px] font-bold uppercase tracking-wider text-slate-900"
+      >Brand &amp; Produsen</span
+    >
+    {{ checkbox_list('brand', filters.brand) }}
+  </div>
+  {% endif %}
+</aside>
