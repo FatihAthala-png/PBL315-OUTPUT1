@@ -1,67 +1,73 @@
 <article
-  class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+  data-product
+  data-order="{{ product.id }}"
+  data-price="{{ product.price_value }}"
+  data-rating="{{ product.rating_value }}"
+  data-type="{{ product.type }}"
+  data-sub="{{ product.sub }}"
+  data-brand="{{ product.brand }}"
+  data-availability="{{ product.availability|join(' ') }}"
+  data-rarity="{{ product.rarity|join(' ') }}"
+  class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_16px_36px_rgba(15,23,42,0.12)] [.is-list_&]:sm:flex-row"
 >
-  <div>
-    <div
-      class="relative w-full aspect-square rounded-lg bg-surface-container-low overflow-hidden mb-space-sm flex items-center justify-center"
+  <!-- Gambar -->
+  <div class="relative flex h-44 md:h-52 shrink-0 items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4 [.is-list_&]:sm:h-auto [.is-list_&]:sm:w-52 [.is-list_&]:sm:shrink-0">
+    <img
+      alt="{{ product.name }}"
+      class="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+      loading="lazy"
+      src="{{ product.image_url }}"
+    />
+    {% if product.badge %}
+    <span class="absolute left-3 top-3 rounded-md bg-slate-900/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">{{ product.badge }}</span>
+    {% endif %}
+    <button
+      type="button"
+      data-wish
+      aria-pressed="false"
+      aria-label="Tambah {{ product.name }} ke wishlist"
+      class="absolute right-3 top-3 z-20 text-slate-500 transition-colors hover:text-red-500"
     >
-      <img
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        src="{{ product.image_url }}"
-        alt="{{ product.name }}"
-      />
-      <div class="absolute top-2 left-2">
-        <span
-          class="px-2 py-0.5 rounded bg-primary-container text-surface-bright font-label-sm text-label-sm"
-          >{{ product.badge }}</span
-        >
-      </div>
-      <button
-        aria-label="Tambah {{ product.name }} ke wishlist"
-        class="absolute top-2 right-2 w-8 h-8 rounded-full bg-surface-container-lowest/90 backdrop-blur-md flex items-center justify-center text-on-tertiary-container shadow-sm hover:scale-110 transition-transform"
-      >
-        <span class="material-symbols-outlined text-body-lg">favorite</span>
-      </button>
-    </div>
-    <div
-      class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm mb-1"
-    >
-      <span>{{ product.category }}</span>
-      <span class="text-secondary font-bold">Stok: {{ product.stock }}</span>
-    </div>
-    <h3
-      class="font-title-md text-title-md text-on-surface font-bold leading-tight group-hover:text-secondary transition-colors mb-2 line-clamp-2"
-    >
-      {{ product.name }}
-    </h3>
-    <div class="flex items-center gap-1.5 mb-3">
-      <div class="flex text-secondary-container">
-        {% for _ in range(5) %}<span
-          class="material-symbols-outlined text-body-md material-symbols-filled"
-          >star</span
-        >{% endfor %}
-      </div>
-      <span class="font-label-sm text-label-sm text-on-surface-variant"
-        >{{ product.rating }}</span
-      >
-    </div>
+      <span class="material-symbols-outlined">favorite</span>
+    </button>
   </div>
-  <div class="pt-space-sm flex flex-col gap-space-sm">
-    <span class="font-price-lg text-price-lg text-secondary font-bold"
-      >{{ product.price }}</span
-    >
-    <div class="grid grid-cols-2 gap-2">
-      <a
-        class="py-2 text-center rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-title-md text-title-md text-sm transition-colors"
-        href="#"
-        >Detail</a
-      >
-      <button
-        class="py-2 rounded-lg bg-secondary-container hover:bg-secondary-fixed-dim text-on-secondary-container font-title-md text-title-md text-sm flex items-center justify-center gap-1 transition-all shadow-sm"
-      >
-        <span class="material-symbols-outlined text-body-md">shopping_cart</span
-        ><span>+ Keranjang</span>
-      </button>
+
+  <!-- Info -->
+  <div class="flex flex-1 flex-col gap-1 border-t border-slate-100 p-4 [.is-list_&]:sm:border-l [.is-list_&]:sm:border-t-0">
+    <div class="flex items-center justify-between gap-2">
+      <span class="truncate text-xs font-bold text-blue-600">{{ product.category }}</span>
+      <span class="shrink-0 text-[11px] font-semibold text-slate-500">Stok: {{ product.stock }}</span>
     </div>
+
+    <h3 class="min-h-[2.5rem] text-sm leading-5 text-slate-600">
+      <a href="{{ url_for('shop.product', product_id=product.id) }}" class="line-clamp-2 after:absolute after:inset-0 after:content-['']">{{ product.name }}</a>
+    </h3>
+
+    <div class="flex items-center gap-1 text-xs text-slate-500">
+      <span class="material-symbols-outlined material-symbols-filled text-base text-amber-400">star</span>
+      {{ product.rating }}
+    </div>
+
+    <!-- Harga: didorong ke bawah supaya sejajar antar kartu -->
+    <div class="mt-auto flex flex-col pt-2">
+      <!-- Baris diskon selalu ada (tinggi tetap), isinya kosong jika tidak ada diskon -->
+      <div class="flex min-h-5 items-center gap-1.5">
+        {% if product.discount %}
+        <span class="text-xs text-slate-400 line-through">{{ product.old_price }}</span>
+        <span class="rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">{{ product.discount }}% OFF</span>
+        {% endif %}
+      </div>
+      <span class="font-heading text-base font-bold text-slate-900">{{ product.price }}</span>
+    </div>
+
+    <button
+      type="button"
+      data-cart
+      data-product-id="{{ product.id }}"
+      class="relative z-10 mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-sky-100 py-2.5 text-sm font-bold text-blue-700 transition-colors hover:bg-sky-200 [.is-list_&]:sm:w-auto [.is-list_&]:sm:self-start [.is-list_&]:sm:px-6"
+    >
+      <span class="material-symbols-outlined text-base">shopping_cart</span>
+      <span>Add to cart</span>
+    </button>
   </div>
 </article>

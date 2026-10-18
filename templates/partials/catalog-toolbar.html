@@ -1,110 +1,56 @@
-<section
-  class="max-w-7xl mx-auto px-6 lg:px-12 w-full pt-space-xs pb-space-md"
-  id="product-catalog"
->
-  <div
-    class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm pb-space-sm"
-  >
-    <nav
-      class="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant overflow-x-auto whitespace-nowrap py-1"
-    >
-      <a
-        class="hover:text-primary transition-colors"
-        data-path="beranda-promo"
-        href="{{ url_for('home') }}"
-        >Beranda</a
+{% set title_head, _, title_tail = page_title.rpartition(' ') %}
+<section class="max-w-7xl mx-auto px-6 lg:px-12 w-full pt-space-md pb-space-md" id="product-catalog">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5">
+    <h1 class="font-heading text-2xl md:text-3xl font-extrabold text-on-surface">
+      {% if title_head %}{{ title_head }} <span class="text-red-600">{{ title_tail }}</span>{% else %}<span class="text-red-600">{{ title_tail }}</span>{% endif %}
+    </h1>
+    <div class="flex items-center gap-3 shrink-0">
+      <button
+        type="button"
+        id="filter-toggle"
+        aria-expanded="false"
+        aria-controls="catalog-filters"
+        class="lg:hidden inline-flex h-10 items-center gap-1.5 rounded-lg border border-blue-600 px-4 text-sm font-bold text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
       >
-      <span class="material-symbols-outlined text-label-sm text-outline-variant"
-        >chevron_right</span
-      >
-      <span class="hover:text-primary transition-colors cursor-pointer"
-        >Katalog Produk</span
-      >
-      <span class="material-symbols-outlined text-label-sm text-outline-variant"
-        >chevron_right</span
-      >
-      <span class="text-on-surface font-semibold"
-        >{{ breadcrumb_label }}</span
-      >
-    </nav>
-    <div class="flex items-center gap-space-sm shrink-0">
-      <span
-        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider"
-        >Tampilan:</span
-      >
-      <div class="flex items-center bg-surface-container-low rounded-lg p-0.5">
-        <button
-          aria-label="Grid view"
-          class="p-1.5 rounded bg-surface-container-lowest text-primary shadow-sm hover:text-primary"
-          id="view-grid-btn"
-        >
-          <span class="material-symbols-outlined text-body-lg">grid_view</span>
+        <span class="material-symbols-outlined text-xl">tune</span>
+        Filter
+      </button>
+      <span class="ml-auto sm:ml-0 text-xs font-bold uppercase tracking-wider text-slate-500">Tampilan:</span>
+      <div class="flex items-center rounded-xl border border-slate-200 bg-white p-0.5">
+        <button type="button" aria-label="Grid view" id="view-grid-btn" class="rounded-lg bg-blue-600 p-1.5 text-white transition-colors">
+          <span class="material-symbols-outlined text-xl block">grid_view</span>
         </button>
-        <button
-          aria-label="List view"
-          class="p-1.5 rounded text-on-surface-variant hover:text-on-surface"
-          id="view-list-btn"
-        >
-          <span class="material-symbols-outlined text-body-lg">view_list</span>
+        <button type="button" aria-label="List view" id="view-list-btn" class="rounded-lg p-1.5 text-slate-500 transition-colors hover:text-blue-600">
+          <span class="material-symbols-outlined text-xl block">view_list</span>
         </button>
       </div>
     </div>
   </div>
-  <!-- Active Filter Chips & Sorting Control -->
-  <div
-    class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md"
-  >
-    <div class="flex flex-wrap items-center gap-space-xs">
-      <span
-        class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mr-space-xs"
-        >Filter Aktif:</span
-      >
-      <span
-        class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors cursor-pointer"
-      >
-        Semua Kategori
-        <span class="material-symbols-outlined text-label-md">close</span>
-      </span>
-      <span
-        class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors cursor-pointer"
-      >
-        Stok Tersedia
-        <span class="material-symbols-outlined text-label-md">close</span>
-      </span>
-      <span
-        class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors cursor-pointer"
-      >
-        Rp 50rb - Rp 3.5jt
-        <span class="material-symbols-outlined text-label-md">close</span>
-      </span>
-      <button
-        class="font-label-sm text-label-sm text-on-tertiary-container hover:underline px-2 py-1"
-      >
-        Reset Semua
-      </button>
+
+  <!-- Filter Aktif & Urutan -->
+  <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 md:p-5 lg:flex-row lg:items-center justify-between">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="mr-1 text-xs font-bold uppercase tracking-wider text-slate-500">Filter Aktif:</span>
+      <span id="no-filter-text" class="text-sm text-slate-500">Belum ada filter dipilih</span>
+      <div id="active-filter-chips" class="contents"></div>
+      <button type="button" id="reset-all-btn" data-reset-filters style="display: none" class="px-2 py-1 text-xs font-bold text-red-600 hover:underline">Reset Semua</button>
     </div>
-    <div class="flex items-center justify-between md:justify-end gap-space-md">
-      <span
-        class="font-body-sm text-body-sm text-on-surface-variant whitespace-nowrap"
-      >
-        Menampilkan <strong class="text-on-surface">12</strong> dari 128 Koleksi
-        Pilihan
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end md:gap-5">
+      <span class="text-sm text-slate-500 sm:whitespace-nowrap">
+        Menampilkan
+        <strong class="font-bold text-slate-900" data-result-count>{{ products|length }}</strong>
+        dari {{ products|length }} Koleksi Pilihan
       </span>
-      <div class="relative">
-        <select
-          class="bg-surface-container-low text-on-surface font-title-md text-title-md rounded-lg pl-3 pr-8 py-2 appearance-none focus:outline-none cursor-pointer"
-          id="sort-selector"
-        >
+      <div class="relative w-full sm:w-auto">
+        <select class="h-10 w-full cursor-pointer appearance-none rounded-xl border border-slate-200 bg-slate-50 pl-3 pr-9 text-sm font-semibold text-slate-700 focus:border-blue-600 focus:outline-none sm:w-auto" id="sort-selector" autocomplete="off">
           <option value="popular">Urutkan: Paling Populer</option>
           <option value="price-low">Harga: Terendah ke Tertinggi</option>
           <option value="price-high">Harga: Tertinggi ke Terendah</option>
           <option value="newest">Rilis Terbaru</option>
           <option value="rating">Rating Tertinggi</option>
         </select>
-        <span
-          class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-body-md"
-          >unfold_more</span
-        >
+        <span class="material-symbols-outlined pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xl text-slate-500">unfold_more</span>
       </div>
     </div>
   </div>

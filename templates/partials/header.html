@@ -1,198 +1,78 @@
-<header
-  class="fixed top-0 left-0 right-0 z-50 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
->
-  <div
-    class="bg-primary-container text-on-primary-fixed text-label-sm font-label-sm"
-  >
-    <div
-      class="max-w-7xl mx-auto px-6 lg:px-12 h-9 flex items-center justify-between"
-    >
-      <div
-        class="flex items-center gap-space-sm overflow-hidden text-ellipsis whitespace-nowrap"
-      >
-        <span
-          class="flex h-2 w-2 rounded-full bg-secondary-container animate-pulse"
-        ></span>
-        <p class="truncate text-surface-container-highest">
-          🎉 Promo Rilis Scarlet &amp; Violet: Gratis Ongkir Se-Indonesia Min.
-          Belanja Rp 300.000 | Garansi 100% Produk Original &amp; Mint Condition
-        </p>
-      </div>
-      <div class="flex items-center gap-space-lg shrink-0">
-        <a
-          class="text-surface-container-high hover:text-on-primary transition-colors"
-          data-path="bantuan-kontak"
-          href="#"
-          >Hubungi CS</a
-        ><span class="text-outline-variant">|</span
-        ><a
-          class="flex items-center gap-space-xs text-secondary-fixed hover:text-secondary-fixed-dim transition-colors"
-          data-path="admin-portal"
-          href="#"
-          ><span class="material-symbols-outlined text-label-md"
-            >admin_panel_settings</span
-          ><span>Portal Admin</span></a
-        >
-      </div>
-    </div>
-  </div>
+{% set nav_items = [ ('home', 'beranda-promo', url_for('shop.home'), 'Beranda / Promo'), ('all_product', 'semua-produk', url_for('shop.page', page='semua-produk'), 'All Product'), ('cek_resi_pesanan', 'cek-resi-pesanan', url_for('orders.tracking'), 'Cek Resi & Pesanan'), ] %} {% set icon_btn = 'icon-fill flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl border border-outline-variant/30 bg-surface-container-low text-on-surface' %}
+<header class="fixed top-0 left-0 right-0 z-50 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
   <div class="bg-surface-container-lowest/95 backdrop-blur-xl">
-    <div
-      class="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between gap-space-lg"
-    >
-      <div class="flex items-center gap-space-md shrink-0">
-        <img
-          alt="PokéVault Logo"
-          class="h-8 w-auto object-contain"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCubguZcxYTAkp33Z0_RpWjfayYwnpO6Ko7RrLv4d6j54bKsP3sArhXQv2monLNHzs4kxMvkw-01N2pcstFwUBRNho9FGdY-tgWGQzpMlzZ5siBleR7ZSG4wY-yrfXItdlK_9sNf1cFT7WFVqGI1MleY5uR87N0lcrP_STJJymqFveSZsq0JKYGs8HVIhykxvAbRtHLe0VRl7tlAKr1zoBtzgKcpuCT-WKOzpJ2BEIlRY6yRKOAW0rW"
-        />
-        <div class="flex flex-col">
-          <span
-            class="font-headline-sm text-headline-sm text-primary tracking-tight leading-none"
-            >PokéVault</span
-          ><span
-            class="font-label-sm text-label-sm text-on-surface-variant font-medium tracking-wider uppercase mt-1"
-            >TCG &amp; Collectibles Store</span
-          >
-        </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 md:gap-x-6">
+      <!-- Logo -->
+      <a href="{{ url_for('shop.home') }}" aria-label="KAMISTORE - Beranda" class="col-start-1 row-start-1 md:row-span-2 flex h-16 w-24 md:h-32 md:w-44 shrink-0 items-center justify-center overflow-hidden">
+        <img alt="KAMISTORE" class="h-24 w-24 md:h-52 md:w-52 max-w-7xl shrink-0 object-contain" src="{{ url_for('static', filename='images/logo2.png') }}" />
+      </a>
+
+      <!-- Ikon: wishlist, akun, keranjang -->
+      <div class="col-start-3 row-start-1 flex h-16 md:h-20 items-center gap-2 md:gap-3 justify-self-end">
+        <a class="{{ icon_btn }}" style="--fill:#ef4444" data-path="wishlist" href="#" aria-label="Wishlist"><span class="material-symbols-outlined">favorite</span></a>
+        {% if current_user %}
+        <details id="account-menu" class="relative">
+          <summary class="{{ icon_btn }} cursor-pointer list-none [&::-webkit-details-marker]:hidden" style="--fill:#2563eb" aria-label="Menu akun">{% if current_user.avatar_path %}<img alt="" class="h-full w-full object-cover" src="{{ url_for('profil.avatar', user_id=current_user.id, v=current_user.avatar_path) }}">{% else %}<span class="material-symbols-outlined">person</span>{% endif %}</summary>
+          <div class="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+            <p class="truncate px-3 pt-2 text-sm font-bold text-slate-900">{{ current_user.name }}</p>
+            <p class="truncate px-3 pb-2 text-xs text-slate-500">{{ current_user.email }}{% if current_user.role == 'admin' %} · Admin{% endif %}</p>
+            {% if current_user.role == 'admin' %}<a href="{{ url_for('admin.dashboard') }}" class="block rounded-lg px-3 py-2 text-sm font-bold text-red-600 hover:bg-red-50">Panel Admin</a>{% endif %}
+            <a href="{{ url_for('profil.view') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Profil Saya</a>
+            <a href="{{ url_for('pesanan.list_orders') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Pesanan Saya</a>
+            <form method="post" action="{{ url_for('auth.logout') }}" class="border-t border-slate-100 pt-1">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50">Keluar</button>
+            </form>
+          </div>
+        </details>
+        <script>
+          document.addEventListener("click", function (e) {
+            var d = document.getElementById("account-menu");
+            if (d && d.open && !d.contains(e.target)) d.open = false;
+          });
+        </script>
+        {% else %}
+        <a class="{{ icon_btn }}" style="--fill:#2563eb" data-path="akun" href="{{ url_for('auth.login') }}" aria-label="Akun"><span class="material-symbols-outlined">person</span></a>
+        {% endif %}
+        <a class="{{ icon_btn }}" style="--fill:#2563eb" data-path="keranjang-belanja" href="{{ url_for('cart.view') }}" aria-label="Keranjang"><span class="material-symbols-outlined">shopping_cart</span><span data-cart-count class="absolute right-0.5 top-0.5 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white {{ '' if cart_count else 'hidden' }}">{{ cart_count }}</span></a>
+        <script src="{{ url_for('static', filename='js/cart.js') }}" data-add-url="{{ url_for('cart.add') }}" defer></script>
       </div>
-      <div class="hidden md:flex flex-1 max-w-2xl items-center">
-        <div
-          class="flex w-full items-center bg-surface-container-low rounded-xl px-space-sm py-1.5 shadow-[0_1px_4px_rgba(11,28,48,0.03)]"
-        >
-          <select
-            class="bg-transparent text-label-md font-label-md text-on-surface px-space-sm py-1.5 focus:outline-none cursor-pointer border-r border-outline-variant/30 pr-space-md"
-          >
-            <option value="all">Semua Kategori</option>
-            <option value="tcg">Pokémon TCG</option>
-            <option value="figure">Action Figure</option>
-          </select>
-          <div class="flex flex-1 items-center px-space-md">
-            <input
-              class="w-full bg-transparent font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none"
-              placeholder="Cari booster box, single card Charizard, figure ArtFX..."
-              type="text"
-            />
-          </div>
-          <button
-            class="flex items-center justify-center bg-primary text-on-primary rounded-lg h-9 w-10 hover:bg-primary-container transition-colors"
-            type="button"
-          >
-            <span class="material-symbols-outlined text-title-md">search</span>
-          </button>
-        </div>
-      </div>
-      <div class="flex items-center gap-space-md shrink-0">
-        <a
-          class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all"
-          data-path="wishlist"
-          href="#"
-          ><span class="material-symbols-outlined text-headline-sm"
-            >favorite</span
-          ><span
-            class="absolute -top-1 -right-1 flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-error text-on-error font-label-sm text-label-sm font-bold"
-            >3</span
-          ></a
-        ><a
-          class="flex items-center gap-space-sm bg-secondary-container text-on-secondary-container px-space-md py-2 rounded-xl shadow-[0_2px_8px_rgba(254,166,25,0.25)] hover:bg-secondary-fixed-dim transition-all"
-          data-path="keranjang-belanja"
-          href="#"
-          ><div class="relative flex items-center justify-center">
-            <span class="material-symbols-outlined text-title-md"
-              >shopping_bag</span
-            ><span
-              class="absolute -top-1.5 -right-2 flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm"
-              >2</span
-            >
-          </div>
-          <div class="flex flex-col text-left">
-            <span
-              class="font-label-sm text-label-sm uppercase leading-none font-bold"
-              >Cart (2)</span
-            ><span
-              class="font-price-md text-price-md font-bold text-primary leading-tight"
-              >Rp 1.550.000</span
-            >
-          </div></a
-        >
-        <div class="relative flex items-center gap-space-sm pl-space-sm py-1">
-          <div
-            class="relative p-0.5 rounded-full ring-2 ring-secondary-container"
-          >
-            <img
-              alt="Profile"
-              class="w-8 h-8 rounded-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuClbCon3SKag7ixWw99aeAscR3EpNkYO9uJ023Cru7G8kbzkzrDYwkYN-VzVQb2P5Ih5DEcRSP_Pl-Ou3ig_3DbMZ_pHrRPgxFZlsOdURwB0p6awKgNVt4FM4KhCtDKzfzWhLBMGU4MH1vuTtTtnYh2JiH9Lpwq045Ni3f8dv2r1DcSRCHdu2TwWwc9jYIpj7lmQvG3vG_Wm21ywQhX-ZOsaItqtIpg5wKQokPrFqEhCOgWgaH0gn2E"
-            />
-          </div>
-          <div class="hidden xl:flex flex-col text-left">
-            <div class="flex items-center gap-space-xs">
-              <span
-                class="font-title-md text-title-md text-on-surface font-bold leading-tight"
-                >Kolektor Satria</span
-              ><span
-                class="flex items-center justify-center px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm leading-none font-bold"
-                >Gold</span
-              >
-            </div>
-            <span class="font-label-sm text-label-sm text-on-surface-variant"
-              >Gold Member VIP</span
-            >
-          </div>
-          <span
-            class="material-symbols-outlined text-on-surface-variant text-body-md"
-            >expand_more</span
-          >
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="bg-surface-container-lowest/80 backdrop-blur-md shadow-[0_1px_4px_rgba(11,28,48,0.02)]"
-  >
-    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+
+      <!-- Search: baris sendiri di HP, sebaris dengan ikon di layar ≥ md -->
+      <form role="search" action="{{ url_for('shop.page', page='semua-produk') }}" method="get" class="col-start-1 col-span-3 row-start-2 md:col-start-2 md:col-span-1 md:row-start-1 flex h-14 md:h-20 min-w-0 items-center pb-2 md:pb-0">
+        <label class="flex h-11 md:h-12 w-full items-center gap-space-sm rounded-xl border border-outline-variant/30 bg-surface-container-low px-space-md transition-colors focus-within:border-primary">
+          <span class="material-symbols-outlined text-title-md text-on-surface-variant">search</span>
+          <input class="w-full bg-transparent font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none" placeholder="Cari produk..." type="search" name="q" value="{{ request.args.get('q', '') }}" maxlength="100" aria-label="Cari produk" />
+        </label>
+      </form>
+
+      <!-- Menu: bisa digeser horizontal di HP -->
       <nav
-        class="flex items-center gap-space-sm h-12 overflow-x-auto whitespace-nowrap"
+        id="main-nav"
+        class="relative col-start-1 col-span-3 row-start-3 md:col-start-2 md:col-span-2 md:row-start-2 flex h-12 items-center gap-1 md:gap-space-sm overflow-x-auto whitespace-nowrap border-t border-outline-variant/20 md:border-t-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         data-active-classes="bg-surface-container text-primary font-bold"
       >
+        {% for key, path, href, label in nav_items %}
         <a
-          class="nav-button px-space-md py-1.5 rounded-lg font-title-md text-title-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all {% if active_page == 'home' %}active{% endif %}"
-          data-path="beranda-promo"
-          href="{{ url_for('home') }}"
-          {% if active_page == 'home' %}aria-current="page"{% endif %}
-          >Beranda / Promo</a
-        ><a
-          class="nav-button px-space-md py-1.5 rounded-lg font-title-md text-title-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all {% if active_page == 'pokemon_tcg' %}active{% endif %}"
-          data-path="semua-pokemon-tcg"
-          href="{{ url_for('page', page='pokemon-tcg', _anchor='product-catalog') }}"
-          {% if active_page == 'pokemon_tcg' %}aria-current="page"{% endif %}
-          >Semua Pokémon TCG</a
-        ><a
-          class="nav-button px-space-md py-1.5 rounded-lg font-title-md text-title-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all {% if active_page == 'action_figures' %}active{% endif %}"
-          data-path="action-figures"
-          href="{{ url_for('page', page='action-figures', _anchor='product-catalog') }}"
-          {% if active_page == 'action_figures' %}aria-current="page"{% endif %}
-          >Action Figures</a
-        ><a
-          class="nav-button px-space-md py-1.5 rounded-lg font-title-md text-title-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all {% if active_page == 'rarity_vault' %}active{% endif %}"
-          data-path="rarity-vault"
-          href="{{ url_for('page', page='rarity-vault', _anchor='product-catalog') }}"
-          {% if active_page == 'rarity_vault' %}aria-current="page"{% endif %}
-          >Rarity Vault</a
-        ><a
-          class="nav-button px-space-md py-1.5 rounded-lg font-title-md text-title-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all {% if active_page == 'cek_resi_pesanan' %}active{% endif %}"
-          data-path="cek-resi-pesanan"
-          href="{{ url_for('page', page='cek-resi-pesanan', _anchor='product-catalog') }}"
-          {% if active_page == 'cek_resi_pesanan' %}aria-current="page"{% endif %}
-          >Cek Resi &amp; Pesanan</a
-        ><a
-          class="nav-button px-space-md py-1.5 rounded-lg font-title-md text-title-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all {% if active_page == 'panduan_grading_orisinalitas' %}active{% endif %}"
-          data-path="panduan-grading-orisinalitas"
-          href="{{ url_for('page', page='panduan-grading-orisinalitas', _anchor='product-catalog') }}"
-          {% if active_page == 'panduan_grading_orisinalitas' %}aria-current="page"{% endif %}
-          >Panduan Grading &amp; Orisinalitas</a
+          class="nav-button shrink-0 px-3 md:px-space-md py-1.5 rounded-lg font-title-md text-sm md:text-title-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all {{ 'active' if active_page == key else '' }}"
+          data-path="{{ path }}"
+          href="{{ href }}"
+          aria-current="{{ 'page' if active_page == key else 'false' }}"
+          >{{ label }}</a
         >
+        {% endfor %}
       </nav>
     </div>
   </div>
 </header>
+
+<script>
+  /* Geser menu supaya item aktif terlihat di layar kecil. */
+  (function () {
+    var nav = document.getElementById("main-nav");
+    var active = nav && nav.querySelector(".nav-button.active");
+    if (active) {
+      nav.scrollLeft = active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
+    }
+  })();
+</script>
