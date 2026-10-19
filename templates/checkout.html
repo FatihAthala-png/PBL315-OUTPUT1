@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Checkout | KAMISTORE{% endblock %}
+{% block content %}
+{% set field = 'mt-1 h-11 w-full rounded-xl border border-slate-300 px-3 text-sm text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100' %}
+<section class="max-w-7xl mx-auto px-6 lg:px-12 w-full pt-space-md pb-12 md:pb-16">
+  <h1 class="font-heading text-2xl md:text-3xl font-extrabold text-on-surface">
+    Check<span class="text-red-600">out</span>
+  </h1>
+
+  {% for category, message in get_flashed_messages(with_categories=true) %}
+  <div class="mt-4 rounded-xl border px-4 py-3 text-sm {{ 'border-green-200 bg-green-50 text-green-700' if category == 'success' else 'border-red-200 bg-red-50 text-red-700' }}">{{ message }}</div>
+  {% endfor %}
+
+  <form method="post" action="{{ url_for('pesanan.checkout') }}" class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="flex flex-col gap-6 lg:col-span-8">
+      <!-- Alamat -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h2 class="font-heading text-base font-extrabold text-slate-900">Alamat Pengiriman</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label class="text-sm font-semibold text-slate-700">Nama penerima
+            <input name="recipient_name" type="text" maxlength="100" required value="{{ form.get('recipient_name', '') }}" class="{{ field }}">
+          </label>
+          <label class="text-sm font-semibold text-slate-700">Nomor telepon
+            <input name="phone" type="tel" maxlength="20" required value="{{ form.get('phone', '') }}" placeholder="08xxxxxxxxxx" class="{{ field }}">
+          </label>
+          <label class="text-sm font-semibold text-slate-700 sm:col-span-2">Alamat lengkap
+            <textarea name="address" rows="3" maxlength="300" required class="mt-1 w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100">{{ form.get('address', '') }}</textarea>
+          </label>
+          <label class="text-sm font-semibold text-slate-700">Kota / Kabupaten
+            <input name="city" type="text" maxlength="100" required value="{{ form.get('city', '') }}" class="{{ field }}">
+          </label>
+          <label class="text-sm font-semibold text-slate-700">Provinsi
+            <input name="province" type="text" maxlength="100" required value="{{ form.get('province', '') }}" class="{{ field }}">
+          </label>
+          <label class="text-sm font-semibold text-slate-700">Kode pos
+            <input name="postal_code" type="text" inputmode="numeric" maxlength="5" pattern="\d{5}" required value="{{ form.get('postal_code', '') }}" class="{{ field }}">
+          </label>
+        </div>
+      </div>
+
+      <!-- Pengiriman -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h2 class="font-heading text-base font-extrabold text-slate-900">Layanan Pengiriman</h2>
+        <div class="mt-4 flex flex-col gap-3">
+          {% set chosen = form.get('shipping', '') %}
+          {% for ckey, c in couriers.items() %}
+            {% for code, svc in c.services.items() %}
+            {% set value = ckey ~ ':' ~ code %}
+            <label class="cursor-pointer">
+              <input type="radio" name="shipping" value="{{ value }}" data-price="{{ svc[1] }}" class="peer sr-only" {{ 'checked' if chosen == value else '' }} required>
+              <span class="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 transition-colors peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-300">
+                <img alt="" class="h-6 w-14 shrink-0 object-contain" src="{{ url_for('static', filename='images/partners/' ~ c.logo) }}">
+                <span class="min-w-0 flex-1">
+                  <span class="block text-sm font-bold text-slate-900">{{ c.label }}</span>
+                  <span class="block text-xs text-slate-500">{{ svc[0] }}</span>
+                </span>
+                <span class="text-sm font-bold text-slate-900">{{ svc[1] | rupiah }}</span>
+              </span>
+            </label>
+            {% endfor %}
+          {% endfor %}
+        </div>
+        <p class="mt-3 text-xs text-slate-500">Tarif ongkir bersifat contoh (flat per layanan).</p>
+      </div>
+    </div>
+
+    <!-- Ringkasan -->
+    <aside class="rounded-2xl border border-slate-200 bg-white p-5 lg:col-span-4 lg:sticky lg:top-40" data-subtotal="{{ subtotal }}">
+      <h2 class="font-heading text-base font-extrabold text-slate-900">Ringkasan Pesanan</h2>
+      <ul class="mt-4 flex flex-col gap-3">
+        {% for item in items %}
+        <li class="flex items-start justify-between gap-3 text-sm">
+          <span class="text-slate-600">{{ item.name }} <span class="font-semibold text-slate-400">&times;{{ item.qty }}</span></span>
+          <span class="shrink-0 font-semibold text-slate-800">{{ item.line_label }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <dl class="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4 text-sm">
+        <div class="flex justify-between"><dt class="text-slate-500">Subtotal</dt><dd class="font-semibold text-slate-800">{{ subtotal | rupiah }}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Ongkos kirim</dt><dd id="ship-label" class="font-semibold text-slate-800">-</dd></div>
+        <div class="flex justify-between"><dt class="font-bold text-slate-900">Total</dt><dd id="total-label" class="font-heading font-extrabold text-slate-900">{{ subtotal | rupiah }}</dd></div>
+      </dl>
+      <button type="submit" class="mt-5 h-12 w-full rounded-xl bg-red-600 text-sm font-bold text-white transition-colors hover:bg-red-700">Buat Pesanan</button>
+      <a href="{{ url_for('cart.view') }}" class="mt-3 block text-center text-sm font-semibold text-blue-600 hover:underline">Kembali ke keranjang</a>
+    </aside>
+  </form>
+</section>
+
+<script>
+  (function () {
+    var summary = document.querySelector("[data-subtotal]");
+    var shipLabel = document.getElementById("ship-label");
+    var totalLabel = document.getElementById("total-label");
+    var radios = document.querySelectorAll('input[name="shipping"]');
+    if (!summary || !radios.length) return;
+    var subtotal = Number(summary.dataset.subtotal);
+    function rp(n) { return "Rp " + new Intl.NumberFormat("id-ID").format(n); }
+    function update() {
+      var picked = document.querySelector('input[name="shipping"]:checked');
+      var ship = picked ? Number(picked.dataset.price) : 0;
+      shipLabel.textContent = picked ? rp(ship) : "-";
+      totalLabel.textContent = rp(subtotal + ship);
+    }
+    radios.forEach(function (r) { r.addEventListener("change", update); });
+    if (!document.querySelector('input[name="shipping"]:checked')) radios[0].checked = true;
+    update();
+  })();
+</script>
+{% endblock %}
