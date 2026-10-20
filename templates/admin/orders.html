@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Pesanan | Admin KAMISTORE{% endblock %}
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 lg:px-12 w-full pt-space-md pb-12 md:pb-16">
+  <h1 class="font-heading text-2xl md:text-3xl font-extrabold text-on-surface">Panel <span class="text-red-600">Admin</span></h1>
+  {% include 'admin/_nav.html' %}
+
+  <!-- Filter status -->
+  <div class="mt-6 flex flex-wrap gap-2">
+    <a href="{{ url_for('admin.orders', q=q or None) }}" class="rounded-full px-3 py-1.5 text-xs font-bold ring-1 {{ 'bg-slate-900 text-white ring-slate-900' if not status else 'bg-white text-slate-600 ring-slate-300 hover:bg-slate-50' }}">Semua</a>
+    {% for key, label in STATUS_LABELS.items() %}
+    <a href="{{ url_for('admin.orders', status=key, q=q or None) }}" class="rounded-full px-3 py-1.5 text-xs font-bold ring-1 {{ 'bg-slate-900 text-white ring-slate-900' if status == key else 'bg-white text-slate-600 ring-slate-300 hover:bg-slate-50' }}">{{ label }} <span class="opacity-70">{{ counts.get(key, 0) }}</span></a>
+    {% endfor %}
+  </div>
+
+  <form method="get" action="{{ url_for('admin.orders') }}" class="mt-4 flex gap-3">
+    {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+    <input type="search" name="q" value="{{ q }}" maxlength="50" placeholder="Cari nomor pesanan, nama, email, atau resi" class="h-11 w-full max-w-md rounded-xl border border-slate-300 px-4 text-sm focus:border-blue-600 focus:outline-none">
+    <button type="submit" class="h-11 rounded-xl bg-blue-600 px-6 text-sm font-bold text-white hover:bg-blue-700">Cari</button>
+  </form>
+
+  <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+    <table class="w-full min-w-[40rem] text-left text-sm">
+      <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+        <tr><th class="px-4 py-3">Pesanan</th><th class="px-4 py-3">Pembeli</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-right">Total</th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for o in rows %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3"><a href="{{ url_for('admin.order_detail', order_no=o.order_no) }}" class="font-bold text-blue-600 hover:underline">{{ o.order_no }}</a><span class="block text-xs text-slate-500">{{ o.created_at | tanggal }}</span></td>
+          <td class="px-4 py-3"><span class="block text-slate-800">{{ o.recipient_name }}</span><span class="block text-xs text-slate-500">{{ o.email }}</span></td>
+          <td class="px-4 py-3"><span class="rounded-full px-3 py-1 text-xs font-bold ring-1 {{ STATUS_TONES.get(o.status, '') }}">{{ STATUS_LABELS.get(o.status, o.status) }}</span></td>
+          <td class="px-4 py-3 text-right font-semibold text-slate-900">{{ o.total | rupiah }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="px-4 py-12 text-center text-slate-500">Tidak ada pesanan.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pages > 1 %}
+  <div class="mt-4 flex items-center justify-between text-sm text-slate-600">
+    <span>{{ total }} pesanan &middot; halaman {{ page }} dari {{ pages }}</span>
+    <div class="flex gap-2">
+      {% if page > 1 %}<a href="{{ url_for('admin.orders', status=status or None, q=q or None, page=page - 1) }}" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold hover:bg-slate-50">&larr; Sebelumnya</a>{% endif %}
+      {% if page < pages %}<a href="{{ url_for('admin.orders', status=status or None, q=q or None, page=page + 1) }}" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold hover:bg-slate-50">Berikutnya &rarr;</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

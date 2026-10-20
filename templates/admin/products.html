@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Produk | Admin KAMISTORE{% endblock %}
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 lg:px-12 w-full pt-space-md pb-12 md:pb-16">
+  <h1 class="font-heading text-2xl md:text-3xl font-extrabold text-on-surface">Panel <span class="text-red-600">Admin</span></h1>
+  {% include 'admin/_nav.html' %}
+
+  {% for category, message in get_flashed_messages(with_categories=true) %}
+  <div class="mt-4 rounded-xl border px-4 py-3 text-sm {{ 'border-green-200 bg-green-50 text-green-700' if category == 'success' else 'border-red-200 bg-red-50 text-red-700' }}">{{ message }}</div>
+  {% endfor %}
+
+  <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+    <form method="get" action="{{ url_for('admin_produk.index') }}" class="flex flex-wrap gap-3">
+      <input type="search" name="q" value="{{ q }}" maxlength="50" placeholder="Cari nama atau kategori" class="h-11 w-64 rounded-xl border border-slate-300 px-4 text-sm focus:border-blue-600 focus:outline-none">
+      <select name="status" class="h-11 rounded-xl border border-slate-300 px-3 text-sm focus:border-blue-600 focus:outline-none">
+        <option value="">Semua status</option>
+        <option value="aktif" {{ 'selected' if status == 'aktif' else '' }}>Aktif</option>
+        <option value="nonaktif" {{ 'selected' if status == 'nonaktif' else '' }}>Nonaktif</option>
+      </select>
+      <button type="submit" class="h-11 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white hover:bg-slate-700">Filter</button>
+    </form>
+    <a href="{{ url_for('admin_produk.create') }}" class="inline-flex h-11 items-center rounded-xl bg-blue-600 px-6 text-sm font-bold text-white hover:bg-blue-700">+ Produk baru</a>
+  </div>
+
+  <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+    <table class="w-full min-w-[46rem] text-left text-sm">
+      <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+        <tr><th class="px-4 py-3">Produk</th><th class="px-4 py-3 text-right">Harga</th><th class="px-4 py-3 text-right">Stok</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-right">Aksi</th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for p in rows %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <img alt="" class="h-12 w-12 shrink-0 rounded-lg border border-slate-200 bg-white object-contain" src="{{ p.image_url }}">
+              <div class="min-w-0">
+                <a href="{{ url_for('shop.product', product_id=p.id) }}" target="_blank" rel="noopener" class="line-clamp-2 font-semibold text-slate-800 hover:text-blue-600">{{ p.name }}</a>
+                <span class="block truncate text-xs text-slate-500">#{{ p.id }} &middot; {{ p.category }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-right font-semibold text-slate-900">{{ p.price | rupiah }}{% if p.discount_percent %}<span class="block text-xs font-bold text-red-600">-{{ p.discount_percent }}%</span>{% endif %}</td>
+          <td class="px-4 py-3 text-right"><span class="rounded-full px-3 py-1 text-xs font-bold ring-1 {{ 'bg-red-50 text-red-700 ring-red-200' if p.stock == 0 else ('bg-amber-50 text-amber-700 ring-amber-200' if p.stock <= 3 else 'bg-slate-50 text-slate-700 ring-slate-200') }}">{{ p.stock }}</span></td>
+          <td class="px-4 py-3"><span class="rounded-full px-3 py-1 text-xs font-bold ring-1 {{ 'bg-emerald-50 text-emerald-700 ring-emerald-200' if p.is_active else 'bg-slate-100 text-slate-600 ring-slate-300' }}">{{ 'Aktif' if p.is_active else 'Nonaktif' }}</span></td>
+          <td class="px-4 py-3">
+            <div class="flex items-center justify-end gap-3 text-xs font-bold">
+              <a href="{{ url_for('admin_produk.edit', product_id=p.id) }}" class="text-blue-600 hover:underline">Ubah</a>
+              <form method="post" action="{{ url_for('admin_produk.toggle', product_id=p.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="text-amber-600 hover:underline">{{ 'Nonaktifkan' if p.is_active else 'Aktifkan' }}</button>
+              </form>
+              <form method="post" action="{{ url_for('admin_produk.delete', product_id=p.id) }}" onsubmit="return confirm('Hapus permanen produk ini?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="text-red-600 hover:underline">Hapus</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500">Tidak ada produk.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pages > 1 %}
+  <div class="mt-4 flex items-center justify-between text-sm text-slate-600">
+    <span>{{ total }} produk &middot; halaman {{ page }} dari {{ pages }}</span>
+    <div class="flex gap-2">
+      {% if page > 1 %}<a href="{{ url_for('admin_produk.index', status=status or None, q=q or None, page=page - 1) }}" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold hover:bg-slate-50">&larr; Sebelumnya</a>{% endif %}
+      {% if page < pages %}<a href="{{ url_for('admin_produk.index', status=status or None, q=q or None, page=page + 1) }}" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold hover:bg-slate-50">Berikutnya &rarr;</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
