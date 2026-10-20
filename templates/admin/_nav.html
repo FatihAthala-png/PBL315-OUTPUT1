@@ -1,0 +1,5 @@
+<nav class="mt-4 flex flex-wrap gap-2" aria-label="Menu admin">
+  {% for key, label, endpoint in admin_tabs %}
+  <a href="{{ url_for(endpoint) }}" class="rounded-full px-4 py-2 text-sm font-bold transition-colors {{ 'bg-blue-600 text-white' if key == admin_tab else 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">{{ label }}</a>
+  {% endfor %}
+</nav>

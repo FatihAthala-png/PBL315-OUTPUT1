@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Ubah' if product_id else 'Tambah' }} Produk | Admin KAMISTORE{% endblock %}
+{% block content %}
+{% set field = 'mt-1 h-11 w-full rounded-xl border border-slate-300 px-3 text-sm text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100' %}
+<section class="max-w-4xl mx-auto px-6 lg:px-12 w-full pt-space-md pb-12 md:pb-16">
+  <h1 class="font-heading text-2xl md:text-3xl font-extrabold text-on-surface">Panel <span class="text-red-600">Admin</span></h1>
+  {% include 'admin/_nav.html' %}
+
+  <nav class="mt-6 text-xs text-slate-500"><a href="{{ url_for('admin_produk.index') }}" class="hover:text-blue-600">&larr; Daftar produk</a></nav>
+  <h2 class="mt-3 font-heading text-xl font-extrabold text-slate-900">{{ 'Ubah Produk #%s' % product_id if product_id else 'Produk Baru' }}</h2>
+
+  {% for category, message in get_flashed_messages(with_categories=true) %}
+  <div class="mt-4 rounded-xl border px-4 py-3 text-sm {{ 'border-green-200 bg-green-50 text-green-700' if category == 'success' else 'border-red-200 bg-red-50 text-red-700' }}">{{ message }}</div>
+  {% endfor %}
+
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('admin_produk.edit', product_id=product_id) if product_id else url_for('admin_produk.create') }}" class="mt-4 flex flex-col gap-6">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 class="font-heading text-base font-extrabold text-slate-900">Informasi</h3>
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="text-sm font-semibold text-slate-700 sm:col-span-2">Nama produk
+          <input name="name" type="text" maxlength="200" required value="{{ values.get('name', '') }}" class="{{ field }}">
+        </label>
+        <label class="text-sm font-semibold text-slate-700">Label kategori (tampil di kartu)
+          <input name="category" type="text" maxlength="100" required value="{{ values.get('category', '') }}" placeholder="Contoh: Scarlet &amp; Violet (EN)" class="{{ field }}">
+        </label>
+        <label class="text-sm font-semibold text-slate-700">Brand
+          <select name="brand" required class="{{ field }}">
+            <option value="">Pilih brand</option>
+            {% for key, label in brands %}<option value="{{ key }}" {{ 'selected' if values.get('brand') == key else '' }}>{{ label }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="text-sm font-semibold text-slate-700">Jenis
+          <select name="type" id="type" required class="{{ field }}">
+            <option value="">Pilih jenis</option>
+            {% for key, info in types.items() %}<option value="{{ key }}" {{ 'selected' if values.get('type') == key else '' }}>{{ info.label }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="text-sm font-semibold text-slate-700">Sub-kategori
+          <select name="sub" id="sub" required class="{{ field }}">
+            <option value="">Pilih sub-kategori</option>
+            {% for tkey, items in subcats.items() %}{% for skey, slabel in items %}
+            <option value="{{ skey }}" data-type="{{ tkey }}" {{ 'selected' if values.get('sub') == skey else '' }}>{{ slabel }}</option>
+            {% endfor %}{% endfor %}
+          </select>
+        </label>
+        <fieldset class="sm:col-span-2">
+          <legend class="text-sm font-semibold text-slate-700">Rarity (opsional)</legend>
+          <div class="mt-2 flex flex-wrap gap-3">
+            {% for key, label in rarities %}
+            <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700">
+              <input type="checkbox" name="rarity" value="{{ key }}" {{ 'checked' if key in rarity_selected else '' }}> {{ label }}
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 class="font-heading text-base font-extrabold text-slate-900">Harga &amp; Stok</h3>
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <label class="text-sm font-semibold text-slate-700">Harga jual (Rp)
+          <input name="price" type="text" inputmode="numeric" required value="{{ values.get('price', '') }}" placeholder="685000" class="{{ field }}">
+        </label>
+        <label class="text-sm font-semibold text-slate-700">Diskon (%) <span class="font-normal text-slate-400">opsional</span>
+          <input name="discount_percent" type="number" min="1" max="90" value="{{ values.get('discount_percent', '') }}" class="{{ field }}">
+        </label>
+        <label class="text-sm font-semibold text-slate-700">Badge
+          <select name="badge" class="{{ field }}">
+            <option value="">(tanpa badge)</option>
+            {% for b in badges %}<option value="{{ b }}" {{ 'selected' if values.get('badge') == b else '' }}>{{ b }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="text-sm font-semibold text-slate-700">Stok
+          <input name="stock" type="number" min="0" max="1000000" required value="{{ values.get('stock', '0') }}" class="{{ field }}">
+        </label>
+        <label class="text-sm font-semibold text-slate-700">Satuan stok <span class="font-normal text-slate-400">opsional</span>
+          <input name="stock_unit" type="text" maxlength="20" value="{{ values.get('stock_unit', '') }}" placeholder="pack, box, unit" class="{{ field }}">
+        </label>
+        <label class="flex cursor-pointer items-center gap-2 self-end pb-3 text-sm font-semibold text-slate-700">
+          <input type="checkbox" name="is_preorder" {{ 'checked' if preorder else '' }}> Pre-order
+        </label>
+      </div>
+      <p class="mt-3 text-xs text-slate-500">Harga jual adalah harga akhir. Jika ada diskon, harga coret dihitung otomatis dari harga jual dan persentasenya.</p>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 class="font-heading text-base font-extrabold text-slate-900">Gambar</h3>
+      {% if current_image %}
+      <div class="mt-4 flex items-center gap-4">
+        <img alt="Gambar saat ini" class="h-24 w-24 rounded-xl border border-slate-200 bg-white object-contain" src="{{ current_image }}">
+        <p class="text-xs text-slate-500">Gambar saat ini. Kosongkan kolom di bawah untuk tetap memakainya.</p>
+      </div>
+      {% endif %}
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="text-sm font-semibold text-slate-700">Unggah gambar (JPG, PNG, WEBP; maks. 5 MB)
+          <input name="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-sky-100 file:px-4 file:py-2 file:text-sm file:font-bold file:text-blue-700 hover:file:bg-sky-200">
+        </label>
+        <label class="text-sm font-semibold text-slate-700">atau URL gambar (https://)
+          <input name="image_url" type="url" maxlength="500" value="{{ values.get('image_url', '') }}" class="{{ field }}">
+        </label>
+      </div>
+      <p class="mt-3 text-xs text-slate-500">Jika keduanya diisi, berkas yang diunggah dipakai. Gambar diperkecil otomatis (maks. 800 px) dan data metadata dibuang.</p>
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit" class="h-12 rounded-xl bg-blue-600 px-10 text-sm font-bold text-white hover:bg-blue-700">{{ 'Simpan perubahan' if product_id else 'Tambah produk' }}</button>
+      <a href="{{ url_for('admin_produk.index') }}" class="inline-flex h-12 items-center rounded-xl border border-slate-300 px-8 text-sm font-bold text-slate-700 hover:bg-slate-50">Batal</a>
+    </div>
+  </form>
+</section>
+
+<script>
+  (function () {
+    var type = document.getElementById("type");
+    var sub = document.getElementById("sub");
+    if (!type || !sub) return;
+    function sync() {
+      sub.querySelectorAll("option[data-type]").forEach(function (o) {
+        var show = !type.value || o.dataset.type === type.value;
+        o.hidden = !show;
+        o.disabled = !show;
+      });
+      var chosen = sub.options[sub.selectedIndex];
+      if (chosen && chosen.disabled) sub.value = "";
+    }
+    type.addEventListener("change", sync);
+    sync();
+  })();
+</script>
+{% endblock %}
