@@ -3,8 +3,11 @@
 Jalankan dari folder proyek (venv aktif):  python smoke_auth.py
 Membuat satu user uji lalu menghapusnya lagi di akhir.
 """
+import os
 import secrets
 import sys
+
+os.environ["OTP_REGISTER"] = "0"  # alur registrasi tanpa OTP; OTP diuji di smoke_otp.py
 
 import db
 from app import app
