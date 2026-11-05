@@ -1,0 +1,28 @@
+[Unit]
+Description=KAMISTORE (Flask + gunicorn)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=web-srv1
+Group=web-srv1
+WorkingDirectory=/home/web-srv1/PBL_315-OUTPUT1
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/home/web-srv1/PBL_315-OUTPUT1/venv/bin/gunicorn --config gunicorn.conf.py app:app
+Restart=on-failure
+RestartSec=3
+
+# Pengerasan dasar
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

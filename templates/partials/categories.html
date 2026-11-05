@@ -1,0 +1,138 @@
+{% set tile_base = 'group flex w-full flex-col items-center justify-center gap-2 rounded-2xl px-3 py-5 text-sm font-bold outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-red-400' %}
+{% set tile_on = 'bg-white text-red-600 shadow-[0_12px_28px_rgba(220,38,38,0.18)] ring-2 ring-red-500' %}
+{% set tile_off = 'bg-slate-50 text-slate-600 hover:bg-white hover:shadow-md' %}
+
+<section
+  id="shop-by-category"
+  data-tile-on="{{ tile_on }}"
+  data-tile-off="{{ tile_off }}"
+  class="max-w-7xl mx-auto px-6 lg:px-12 w-full pb-space-lg"
+>
+  <!-- Judul + tombol -->
+  <div class="mb-6 flex items-center justify-between gap-4">
+    <h2
+      class="font-heading text-2xl md:text-3xl font-extrabold text-on-surface"
+    >
+      Shop By <span class="text-red-600">Category</span>
+    </h2>
+    <a
+      id="see-all-link"
+      href="{{ url_for('shop.page', page=shop_categories[0].page) }}"
+      class="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-5 py-2 text-sm font-bold text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
+    >
+      See All Products
+      <span class="material-symbols-outlined text-lg">arrow_right_alt</span>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start">
+    <!-- ===== Panel kategori ===== -->
+    <div
+      role="tablist"
+      aria-label="Kategori produk"
+      class="grid grid-cols-2 gap-3 rounded-3xl border border-slate-200 bg-white p-3 lg:grid-cols-1"
+    >
+      {% for cat in shop_categories %}
+      <button
+        type="button"
+        role="tab"
+        data-cat="{{ cat.key }}"
+        data-href="{{ url_for('shop.page', page=cat.page) }}"
+        aria-selected="{{ 'true' if loop.first else 'false' }}"
+        class="{{ tile_base }} {{ tile_on if loop.first else tile_off }}"
+      >
+        <img
+          alt=""
+          class="h-16 w-16 md:h-20 md:w-20 object-contain mix-blend-multiply"
+          src="{{ url_for('static', filename='images/categories/' ~ cat.icon) }}"
+          data-gif="{{ url_for('static', filename='images/categories/' ~ cat.icon) }}"
+          data-gif-icon
+        />
+        <span>{{ cat.label }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    <!-- ===== Grid produk per kategori ===== -->
+    <div class="min-w-0">
+      {% for cat in shop_categories %}
+      <div
+        role="tabpanel"
+        data-panel="{{ cat.key }}"
+        class="grid grid-cols-2 gap-4 md:grid-cols-3 {{ '' if loop.first else 'hidden' }}"
+      >
+        {% for product in cat.products %}
+        <article
+          class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_16px_36px_rgba(15,23,42,0.12)]"
+        >
+          <!-- Gambar -->
+          <div
+            class="relative flex h-44 md:h-52 shrink-0 items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4"
+          >
+            <img
+              alt="{{ product.name }}"
+              class="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              src="{{ product.image_url }}"
+            />
+            {% if product.badge %}
+            <span
+              class="absolute left-3 top-3 rounded-md bg-slate-900/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+              >{{ product.badge }}</span
+            >
+            {% endif %}
+            <button
+              type="button"
+              data-wish
+              aria-pressed="false"
+              aria-label="Tambah ke wishlist"
+              class="absolute right-3 top-3 z-20 text-slate-500 transition-colors hover:text-red-500"
+            >
+              <span class="material-symbols-outlined">favorite</span>
+            </button>
+          </div>
+
+          <!-- Info -->
+          <div class="flex flex-1 flex-col gap-1 border-t border-slate-100 p-4">
+            <span class="truncate text-xs font-bold text-blue-600"
+              >{{ product.category }}</span
+            >
+            <h3 class="min-h-[2.5rem] text-sm leading-5 text-slate-600">
+              <a
+                href="{{ url_for('shop.product', product_id=product.id) }}"
+                class="line-clamp-2 after:absolute after:inset-0 after:content-['']"
+                >{{ product.name }}</a
+              >
+            </h3>
+
+            <!-- Harga: didorong ke bawah supaya sejajar antar kartu -->
+            <div class="mt-auto flex flex-col pt-2">
+              <!-- Baris diskon selalu ada (tinggi tetap), kosong jika tidak ada diskon -->
+              <div class="flex min-h-5 items-center gap-1.5">
+                {% if product.discount %}
+                <span class="text-xs text-slate-400 line-through"
+                  >{{ product.old_price }}</span
+                >
+                <span
+                  class="rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white"
+                  >{{ product.discount }}%</span
+                >
+                {% endif %}
+              </div>
+              <span class="font-heading text-base font-bold text-slate-900"
+                >{{ product.price }}</span
+              >
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<script
+  src="{{ url_for('static', filename='js/categories.js') }}"
+  defer
+></script>
