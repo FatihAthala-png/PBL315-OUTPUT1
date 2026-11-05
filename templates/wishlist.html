@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Wishlist | KAMISTORE{% endblock %}
+{% block content %}
+<section data-wishlist-page class="max-w-7xl mx-auto px-6 lg:px-12 w-full pt-space-md pb-12 md:pb-16">
+  <h1 class="font-heading text-2xl md:text-3xl font-extrabold text-on-surface">
+    Wishlist <span class="text-red-600">Saya</span>
+  </h1>
+  <p class="mt-1 text-sm text-slate-500"><span data-wishlist-total>{{ products|length }}</span> produk tersimpan</p>
+
+  <ul data-wishlist-list class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 {{ '' if products else 'hidden' }}">
+    {% for product in products %}
+    <li data-wish-item>{% include 'partials/product-card.html' %}</li>
+    {% endfor %}
+  </ul>
+
+  <div data-wishlist-empty class="mt-6 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-300 px-6 py-16 text-center {{ 'hidden' if products else '' }}">
+    <span class="material-symbols-outlined text-5xl text-slate-300">favorite</span>
+    <h2 class="font-heading text-lg font-extrabold text-slate-900">Wishlist kamu masih kosong</h2>
+    <p class="max-w-md text-sm text-slate-500">Tekan ikon hati pada produk yang kamu suka, nanti muncul di sini.</p>
+    <a href="{{ url_for('shop.page', page='semua-produk') }}" class="mt-2 rounded-xl bg-blue-600 px-8 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700">Lihat Produk</a>
+  </div>
+</section>
+{% endblock %}

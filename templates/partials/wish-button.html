@@ -1,0 +1,16 @@
+{# Tombol hati wishlist. Status awal dari server (wishlist_ids); klik ditangani static/js/wishlist.js.
+   Pakai: {% from 'partials/wish-button.html' import wish_button with context %}{{ wish_button(product, 'kelas-posisi') }} #}
+{% macro wish_button(product, position='absolute right-3 top-3 z-20', id=None) -%}
+{% set liked = product.id in wishlist_ids -%}
+<button
+  type="button"
+  {% if id %}id="{{ id }}"{% endif %}
+  data-wish
+  data-product-id="{{ product.id }}"
+  aria-pressed="{{ 'true' if liked else 'false' }}"
+  aria-label="{{ 'Hapus' if liked else 'Tambah' }} {{ product.name }} {{ 'dari' if liked else 'ke' }} wishlist"
+  class="{{ position }} transition-colors hover:text-red-500 {{ 'text-red-500' if liked else 'text-slate-500' }}"
+>
+  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' {{ 1 if liked else 0 }}">favorite</span>
+</button>
+{%- endmacro %}
