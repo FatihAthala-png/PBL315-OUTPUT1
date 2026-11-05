@@ -71,18 +71,19 @@ tailwind.config = {
         "space-lg": "1.5rem",
       },
       fontFamily: {
-        "display-lg": ["Plus Jakarta Sans"],
-        "price-md": ["Plus Jakarta Sans"],
-        "headline-md": ["Plus Jakarta Sans"],
-        "label-md": ["Plus Jakarta Sans"],
-        "label-sm": ["Plus Jakarta Sans"],
-        "body-md": ["Inter"],
-        "body-sm": ["Inter"],
-        "body-lg": ["Inter"],
-        "price-lg": ["Plus Jakarta Sans"],
-        "title-md": ["Plus Jakarta Sans"],
-        "headline-sm": ["Plus Jakarta Sans"],
-        "headline-lg": ["Plus Jakarta Sans"],
+        heading: ["Plus Jakarta Sans", "sans-serif"],
+        "display-lg": ["Plus Jakarta Sans", "sans-serif"],
+        "price-md": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+        "label-md": ["Plus Jakarta Sans", "sans-serif"],
+        "label-sm": ["Plus Jakarta Sans", "sans-serif"],
+        "body-md": ["Inter", "sans-serif"],
+        "body-sm": ["Inter", "sans-serif"],
+        "body-lg": ["Inter", "sans-serif"],
+        "price-lg": ["Plus Jakarta Sans", "sans-serif"],
+        "title-md": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
+        "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
       },
       fontSize: {
         "display-lg": [
@@ -141,75 +142,44 @@ tailwind.config = {
 /* Interaksi halaman katalog. */
 
 function initializeCatalogInteractions() {
-  // Toggle Grid and List views
+  // Toggle tampilan Grid / List
   const gridBtn = document.getElementById("view-grid-btn");
   const listBtn = document.getElementById("view-list-btn");
   const catalogContainer = document.getElementById("catalog-items-container");
+  if (!catalogContainer) return;
 
-  if (gridBtn && listBtn && catalogContainer) {
-    gridBtn.addEventListener("click", function () {
-      gridBtn.classList.add(
-        "bg-surface-container-lowest",
-        "text-primary",
-        "shadow-sm",
-      );
-      gridBtn.classList.remove("text-on-surface-variant");
-      listBtn.classList.remove(
-        "bg-surface-container-lowest",
-        "text-primary",
-        "shadow-sm",
-      );
-      listBtn.classList.add("text-on-surface-variant");
+  const ON = ["bg-blue-600", "text-white"];
+  const OFF = ["text-slate-500", "hover:text-blue-600"];
 
-      catalogContainer.className =
-        "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-lg";
-    });
-
-    listBtn.addEventListener("click", function () {
-      listBtn.classList.add(
-        "bg-surface-container-lowest",
-        "text-primary",
-        "shadow-sm",
-      );
-      listBtn.classList.remove("text-on-surface-variant");
-      gridBtn.classList.remove(
-        "bg-surface-container-lowest",
-        "text-primary",
-        "shadow-sm",
-      );
-      gridBtn.classList.add("text-on-surface-variant");
-
-      catalogContainer.className = "grid grid-cols-1 gap-space-md";
+  function setView(list) {
+    catalogContainer.classList.toggle("is-list", list);
+    catalogContainer.classList.toggle("grid-cols-1", list);
+    catalogContainer.classList.toggle("grid-cols-2", !list);
+    catalogContainer.classList.toggle("xl:grid-cols-3", !list);
+    [[gridBtn, !list], [listBtn, list]].forEach(function (pair) {
+      if (!pair[0]) return;
+      ON.forEach(function (c) { pair[0].classList.toggle(c, pair[1]); });
+      OFF.forEach(function (c) { pair[0].classList.toggle(c, !pair[1]); });
     });
   }
+  if (gridBtn) gridBtn.addEventListener("click", function () { setView(false); });
+  if (listBtn) listBtn.addEventListener("click", function () { setView(true); });
 
-  // Add feedback when clicking + Keranjang
-  const cartButtons = document.querySelectorAll(
-    'button:has(span.material-symbols-outlined:contains("shopping_cart")), article button',
-  );
-  cartButtons.forEach((btn) => {
-    if (btn.innerText.includes("Keranjang")) {
-      btn.addEventListener("click", function (e) {
-        e.preventDefault();
-        const originalHTML = this.innerHTML;
-        this.innerHTML =
-          '<span class="material-symbols-outlined text-body-md">check</span><span>Ditambahkan!</span>';
-        this.classList.add("bg-primary", "text-on-primary");
-        this.classList.remove(
-          "bg-secondary-container",
-          "text-on-secondary-container",
-        );
-
-        setTimeout(() => {
-          this.innerHTML = originalHTML;
-          this.classList.remove("bg-primary", "text-on-primary");
-          this.classList.add(
-            "bg-secondary-container",
-            "text-on-secondary-container",
-          );
-        }, 1800);
-      });
+  // Wishlist & Add to cart
+  catalogContainer.addEventListener("click", function (e) {
+    const wish = e.target.closest("[data-wish]");
+    if (wish) {
+      const liked = wish.getAttribute("aria-pressed") !== "true";
+      wish.setAttribute("aria-pressed", liked ? "true" : "false");
+      wish.classList.toggle("text-red-500", liked);
+      wish.classList.toggle("text-slate-500", !liked);
+      wish.querySelector("span").style.fontVariationSettings = liked
+        ? "'FILL' 1"
+        : "'FILL' 0";
+      return;
     }
+
+    // Add to cart: ditangani static/js/cart.js
   });
 }
 

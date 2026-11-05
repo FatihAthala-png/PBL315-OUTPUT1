@@ -1,0 +1,194 @@
+{% extends 'base.html' %} {% block title %}Cek Resi & Pesanan | KAMISTORE{% endblock %}
+{% block content %}
+{% set tones = {
+  'blue': 'bg-blue-50 text-blue-700 ring-blue-200',
+  'amber': 'bg-amber-50 text-amber-700 ring-amber-200',
+  'emerald': 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+  'slate': 'bg-slate-100 text-slate-600 ring-slate-300'
+} %}
+
+<section class="max-w-7xl mx-auto px-6 lg:px-12 w-full pt-space-md pb-12 md:pb-16">
+  <h1 class="font-heading text-2xl md:text-3xl font-extrabold text-on-surface">
+    Cek Resi &amp; <span class="text-red-600">Pesanan</span>
+  </h1>
+  <p class="mt-2 max-w-2xl text-sm text-slate-500">
+    Masukkan nomor pesanan atau nomor resi untuk melihat status dan posisi paket kamu.
+  </p>
+
+  <!-- ===== Form pelacakan ===== -->
+  <form
+    method="get"
+    action="{{ url_for('orders.tracking') }}"
+    class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 md:p-5"
+  >
+    <label for="track-q" class="text-xs font-bold uppercase tracking-wider text-slate-500">Nomor Resi / Nomor Pesanan</label>
+    <div class="mt-2 flex flex-col gap-3 sm:flex-row">
+      <input
+        id="track-q"
+        name="q"
+        type="text"
+        value="{{ query }}"
+        maxlength="50"
+        autocomplete="off"
+        placeholder="Contoh: KMS-261001-0001 atau JNE0012345678"
+        class="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none"
+      />
+      <button
+        type="submit"
+        class="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-8 text-sm font-bold text-white transition-colors hover:bg-blue-700"
+      >
+        <span class="material-symbols-outlined text-xl">search</span>
+        Lacak
+      </button>
+    </div>
+
+
+    {% if my_orders %}
+    <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+      <span>Pesanan terakhirmu:</span>
+      {% for o in my_orders %}
+      <a
+        href="{{ url_for('orders.tracking', q=o.order_no) }}"
+        class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600 transition-colors hover:border-blue-600 hover:text-blue-600"
+        >{{ o.order_no }}</a
+      >
+      {% endfor %}
+    </div>
+    {% endif %}
+  </form>
+
+  {% if order %}
+  <!-- ===== Hasil pelacakan ===== -->
+  <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+    <!-- Kiri: status + riwayat -->
+    <div class="flex flex-col gap-6 lg:col-span-8 min-w-0">
+      <!-- Status -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 md:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Status Pesanan</p>
+            <p class="mt-1 font-heading text-xl font-extrabold text-slate-900">{{ order.status_label }}</p>
+          </div>
+          <span class="rounded-full px-4 py-1.5 text-xs font-bold ring-1 {{ tones[order.tone] }}">{{ order.order_no }}</span>
+        </div>
+
+        <!-- Stepper -->
+        <ol class="mt-8 grid grid-cols-4">
+          {% for label, icon in steps %}
+          {% set done = loop.index0 <= order.step %}
+          {% set current = loop.index0 == order.step %}
+          <li class="relative flex flex-col items-center text-center">
+            {% if not loop.first %}
+            <span class="absolute right-1/2 top-4 h-0.5 w-full -translate-y-1/2 {{ 'bg-blue-600' if done else 'bg-slate-200' }}"></span>
+            {% endif %}
+            <span class="relative z-10 flex h-8 w-8 items-center justify-center rounded-full {{ 'bg-blue-600 text-white' if done else 'bg-slate-100 text-slate-400' }} {{ 'ring-4 ring-blue-100' if current else '' }}">
+              <span class="material-symbols-outlined text-lg">{{ icon }}</span>
+            </span>
+            <span class="mt-2 text-xs font-bold {{ 'text-slate-900' if done else 'text-slate-400' }}">{{ label }}</span>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      <!-- Riwayat perjalanan -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 md:p-6">
+        <h2 class="font-heading text-base font-extrabold text-slate-900">Riwayat Perjalanan Paket</h2>
+        <ul class="mt-5 flex flex-col">
+          {% for time, title, desc in order.history %}
+          <li class="relative flex gap-4 pb-6 last:pb-0">
+            {% if not loop.last %}
+            <span class="absolute left-[7px] top-4 h-full w-0.5 bg-slate-200"></span>
+            {% endif %}
+            <span class="relative z-10 mt-1 h-4 w-4 shrink-0 rounded-full border-2 {{ 'border-blue-600 bg-blue-600 ring-4 ring-blue-100' if loop.first else 'border-slate-300 bg-white' }}"></span>
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-500">{{ time }}</p>
+              <p class="text-sm font-bold {{ 'text-slate-900' if loop.first else 'text-slate-700' }}">{{ title }}</p>
+              <p class="text-sm text-slate-500">{{ desc }}</p>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Kanan: ringkasan -->
+    <aside class="flex flex-col gap-6 lg:col-span-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h2 class="font-heading text-base font-extrabold text-slate-900">Info Pengiriman</h2>
+        <div class="mt-4 flex items-center gap-3">
+          <span class="flex h-12 w-20 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white px-2">
+            <img
+              alt="{{ order.courier }}"
+              class="h-8 w-full object-contain"
+              src="{{ url_for('static', filename='images/partners/' ~ order.courier_logo) }}"
+              onerror="this.replaceWith(document.createTextNode(this.alt))"
+            />
+          </span>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-slate-900">{{ order.courier }} · {{ order.service }}</p>
+            <p class="truncate text-xs text-slate-500">No. Resi: {{ order.resi or 'Belum tersedia' }}</p>
+          </div>
+        </div>
+        <dl class="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 text-sm">
+          <div class="flex justify-between gap-4"><dt class="text-slate-500">Tanggal Pesan</dt><dd class="font-semibold text-slate-800">{{ order.date }}</dd></div>
+          <div class="flex justify-between gap-4"><dt class="text-slate-500">Penerima</dt><dd class="font-semibold text-slate-800">{{ order.recipient }}</dd></div>
+          <div class="flex justify-between gap-4"><dt class="text-slate-500">Tujuan</dt><dd class="text-right font-semibold text-slate-800">{{ order.address }}</dd></div>
+        </dl>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h2 class="font-heading text-base font-extrabold text-slate-900">Ringkasan Pesanan</h2>
+        <ul class="mt-4 flex flex-col gap-3">
+          {% for item in order['items'] %}
+          <li class="flex items-start justify-between gap-3 text-sm">
+            <span class="text-slate-600">{{ item.name }} <span class="font-semibold text-slate-400">×{{ item.qty }}</span></span>
+            <span class="shrink-0 font-semibold text-slate-800">{{ item.price }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        <dl class="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4 text-sm">
+          <div class="flex justify-between"><dt class="text-slate-500">Ongkos Kirim</dt><dd class="font-semibold text-slate-800">{{ order.shipping }}</dd></div>
+          <div class="flex justify-between"><dt class="font-bold text-slate-900">Total</dt><dd class="font-heading font-extrabold text-slate-900">{{ order.total }}</dd></div>
+        </dl>
+      </div>
+    </aside>
+  </div>
+
+  {% elif query %}
+  <!-- ===== Tidak ditemukan ===== -->
+  <div class="mt-6 flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center">
+    <span class="material-symbols-outlined text-5xl text-slate-400">search_off</span>
+    <p class="font-heading text-lg font-bold text-slate-900">Pesanan tidak ditemukan</p>
+    <p class="max-w-md text-sm text-slate-500">
+      Nomor <strong class="text-slate-700">{{ query }}</strong> belum terdaftar. Periksa kembali nomor pesanan atau resi kamu, lalu coba lagi.
+    </p>
+  </div>
+
+  {% else %}
+  <!-- ===== Panduan (sebelum mencari) ===== -->
+  <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-5">
+      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-extrabold text-blue-600">1</span>
+      <div>
+        <p class="text-sm font-bold text-slate-900">Siapkan Nomornya</p>
+        <p class="mt-1 text-sm text-slate-500">Nomor pesanan ada di email konfirmasi. Nomor resi muncul setelah paket diserahkan ke kurir.</p>
+      </div>
+    </div>
+    <div class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-5">
+      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-extrabold text-blue-600">2</span>
+      <div>
+        <p class="text-sm font-bold text-slate-900">Masukkan &amp; Lacak</p>
+        <p class="mt-1 text-sm text-slate-500">Ketik nomornya di kolom di atas, lalu tekan tombol Lacak.</p>
+      </div>
+    </div>
+    <div class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-5">
+      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-extrabold text-blue-600">3</span>
+      <div>
+        <p class="text-sm font-bold text-slate-900">Pantau Perjalanan Paket</p>
+        <p class="mt-1 text-sm text-slate-500">Lihat status terbaru dan riwayat perjalanan paket sampai tiba di tujuan.</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
