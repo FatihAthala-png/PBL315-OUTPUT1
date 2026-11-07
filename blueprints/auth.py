@@ -12,20 +12,22 @@ from flask import (
     session,
     url_for,
 )
-from mysql.connector import errors as mysql_errors
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash
 
-import db
+import otp_flow
 import ratelimit
 from security import safe_next
+from services import EmailAlreadyUsed, UserService
 
 bp = Blueprint("auth", __name__)
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
-# Hash palsu: dipakai saat email tidak ditemukan, supaya waktu respons login
-# sama dengan email yang ada (tidak membocorkan email mana yang terdaftar).
-DUMMY_HASH = generate_password_hash("kamistore-dummy-password")
+def _landing_url(user, next_url):
+    """Tujuan setelah login: tujuan `next` bila ada; admin langsung ke Panel Admin."""
+    if next_url:
+        return next_url
+    return url_for("admin.dashboard") if user.is_admin else url_for("shop.home")
 
 
 def password_valid(password):
@@ -52,11 +54,8 @@ def load_user():
     user_id = session.get("user_id")
     if user_id is None or request.endpoint == "static":
         return
-    user = db.query_one(
-        "SELECT id, name, email, role, is_active, avatar_path FROM users WHERE id = %s",
-        (user_id,),
-    )
-    if user is None or not user["is_active"]:
+    user = UserService.get_by_id(user_id)
+    if user is None or not user.is_active:
         session.clear()
         return
     g.user = user
@@ -74,7 +73,7 @@ def inject_user():
 def login():
     next_url = safe_next(request.values.get("next"))
     if g.user:
-        return redirect(next_url or url_for("shop.home"))
+        return redirect(_landing_url(g.user, next_url))
 
     error = None
     email = ""
@@ -92,34 +91,31 @@ def login():
 
         user = None
         if EMAIL_RE.match(email) and len(email) <= 150:
-            user = db.query_one(
-                "SELECT id, password_hash, is_active FROM users WHERE email = %s",
-                (email,),
-            )
-        stored = user["password_hash"] if user else DUMMY_HASH
-        valid = check_password_hash(stored, password) and user is not None
+            user = UserService.verify_credentials(email, password)
+        else:
+            UserService.verify_credentials(None, password)  # waktu proses tetap sama
 
-        if not valid:
+        if user is None:
             error = "Email atau kata sandi salah."
             ratelimit.record("login-email", email, 600)
             ratelimit.record("login-ip", request.remote_addr, 600)
             current_app.logger.warning(
                 "LOGIN_FAILED email=%s ip=%s", _safe(email), request.remote_addr
             )
-        elif not user["is_active"]:
+        elif not user.is_active:
             error = "Akun kamu dinonaktifkan. Hubungi admin."
             current_app.logger.warning(
-                "LOGIN_BLOCKED user_id=%s ip=%s", user["id"], request.remote_addr
+                "LOGIN_BLOCKED user_id=%s ip=%s", user.id, request.remote_addr
             )
         else:
             ratelimit.clear("login-email", email)
             session.clear()  # session baru (cegah session fixation)
-            session["user_id"] = user["id"]
+            session["user_id"] = user.id
             session.permanent = True
             current_app.logger.info(
-                "LOGIN_OK user_id=%s ip=%s", user["id"], request.remote_addr
+                "LOGIN_OK user_id=%s ip=%s", user.id, request.remote_addr
             )
-            return redirect(next_url or url_for("shop.home"))
+            return redirect(_landing_url(user, next_url))
 
     return render_template("login.html", error=error, email=email, next=next_url)
 
@@ -165,15 +161,20 @@ def register():
             error = "Konfirmasi kata sandi tidak sama."
         elif not setuju:
             error = "Kamu harus menyetujui Syarat & Ketentuan."
-        elif db.query_one("SELECT id FROM users WHERE email = %s", (email,)):
+        elif UserService.email_exists(email):
             error = "Email sudah terdaftar."
+        elif otp_flow.enabled():
+            try:
+                otp_flow.begin(email, nama, generate_password_hash(password))
+            except otp_flow.OtpError as exc:
+                error = str(exc)
+            else:
+                session["otp_email"] = email
+                return redirect(url_for("verifikasi.page"))
         else:
             try:
-                db.execute(
-                    "INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s)",
-                    (nama, email, generate_password_hash(password)),
-                )
-            except mysql_errors.IntegrityError:
+                UserService.register(nama, email, password)
+            except EmailAlreadyUsed:
                 error = "Email sudah terdaftar."  # balapan dua pendaftaran
             else:
                 flash("Pendaftaran berhasil. Silakan masuk.")
