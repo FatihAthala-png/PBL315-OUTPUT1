@@ -1,0 +1,2 @@
+Konfigurasi database tunggal untuk Flask-Migrate (Alembic).
+Lihat docs/MIGRASI.md untuk cara pakai.
