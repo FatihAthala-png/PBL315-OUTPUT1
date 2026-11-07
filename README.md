@@ -1,238 +1,186 @@
 # KAMISTORE
 
-KAMISTORE adalah aplikasi web e-commerce yang dikembangkan menggunakan Flask untuk menyediakan katalog produk Pokémon TCG dan Action Figure.
+Toko online Pokémon TCG dan action figure. Dibuat dengan Flask, MySQL, dan Jinja2 sebagai proyek PBL.
 
-Project ini dibuat sebagai bagian dari PBL 315 dengan fokus pada pengembangan aplikasi toko online yang memiliki katalog produk, pencarian, filter, autentikasi pengguna, dan informasi pengiriman.
+Repo: https://github.com/FatihAthala-png/PBL_315-OUTPUT1
 
 ## Fitur
 
-### Beranda
-
-* Hero section dan banner promosi
-* Produk populer
-* Kategori produk
-* Informasi toko
-* Navigasi utama
-
-### Katalog Produk
-
-* Menampilkan daftar produk
-* Kategori Pokémon TCG dan Action Figure
-* Pencarian produk
-* Filter produk
-* Pengurutan produk
-* Informasi harga, rating, dan ketersediaan
-* Tampilan grid dan list
-
-### Autentikasi
-
-* Registrasi pengguna
-* Login pengguna
-* Password hashing
-* Validasi data pengguna
-
-### Tracking Pesanan
-
-* Informasi pesanan
-* Nomor resi
-* Status pengiriman
-* Riwayat perjalanan paket
-
-### Interface
-
-* Responsive design
-* Navigasi yang sederhana
-* Komponen produk yang konsisten
-* Tampilan yang dapat digunakan pada desktop maupun perangkat mobile
+- **Katalog**: beranda dan halaman `/semua-produk`, dengan pencarian, filter, dan urutan. Data produk dibaca dari database.
+- **Register dengan verifikasi OTP**: kode 6 digit dikirim ke email. Akun baru dibuat setelah kode benar.
+- **Login**: sandi di-hash, ada pembatasan percobaan gagal, dan semua kejadian login dicatat di log.
+- **Manajemen produk (CRUD)**: tambah, ubah, nonaktifkan/aktifkan, dan hapus produk di panel admin. Produk yang pernah dipesan hanya bisa dinonaktifkan.
+- **Dashboard admin**: hanya bisa dibuka akun dengan role `admin`. Pengguna biasa mendapat 403, pengunjung tanpa login diarahkan ke halaman login.
+- **Profil dan reset sandi**: pengguna bisa mengubah profil dan memulihkan akun lewat halaman lupa sandi.
+- **Wishlist, keranjang, checkout, pesanan, dan pelacakan**, dengan pembayaran lewat Midtrans.
 
 ## Teknologi
 
-Project ini menggunakan beberapa teknologi berikut:
+| Bagian | Yang dipakai |
+|---|---|
+| Framework | Flask (struktur blueprint) |
+| Database | MySQL |
+| ORM | Flask-SQLAlchemy (model `User` dan `Product`) |
+| Migration | Flask-Migrate (Alembic) |
+| Template | Jinja2 |
+| Keamanan | Flask-WTF (CSRF), hash sandi scrypt (werkzeug), batas percobaan login, OTP email (pyotp) |
+| Pembayaran | Midtrans |
+| Server | gunicorn + systemd |
 
-| Teknologi       | Penggunaan                   |
-| --------------- | ---------------------------- |
-| Python          | Bahasa pemrograman utama     |
-| Flask           | Web framework                |
-| HTML            | Struktur halaman             |
-| CSS             | Styling dan layout           |
-| JavaScript      | Interaksi pada halaman       |
-| Jinja2          | Template engine Flask        |
-| JSON            | Penyimpanan data produk      |
-| MySQL Connector | Persiapan integrasi database |
+## Struktur proyek
 
-## Struktur Project
-
-```text
-PBL315/
-│
-├── app.py
-├── requirements.txt
-├── README.md
-├── LICENSE
-├── .gitignore
-│
-├── data/
-│   └── products.json
-│
-├── docs/
-│   └── DESIGN.md
-│
-├── static/
-│   ├── css/
-│   │   ├── auth.css
-│   │   └── style.css
-│   │
-│   ├── js/
-│   │   ├── app.js
-│   │   ├── categories.js
-│   │   ├── filter.js
-│   │   ├── hero.js
-│   │   ├── login.js
-│   │   ├── popular.js
-│   │   └── register.js
-│   │
-│   └── images/
-│       ├── logo2.png
-│       ├── logo3.png
-│       ├── welcome.png
-│       ├── b1.png
-│       ├── b2.png
-│       └── ...
-│
-└── templates/
-    ├── base.html
-    ├── index.html
-    ├── catalog.html
-    ├── login.html
-    ├── register.html
-    ├── tracking.html
-    │
-    └── partials/
-        ├── header.html
-        ├── footer.html
-        ├── hero.html
-        ├── product-card.html
-        ├── catalog-content.html
-        ├── catalog-filters.html
-        ├── catalog-toolbar.html
-        ├── categories.html
-        ├── popular-items.html
-        ├── trust-features.html
-        └── welcome.html
+```
+app.py                  perakit aplikasi, mendaftarkan 15 blueprint
+extensions.py           objek db (SQLAlchemy) dan migrate
+models.py               kelas User dan Product
+security.py             dekorator login_required dan admin_required
+logging_config.py       pengaturan logging (konsol dan file, dengan rotasi)
+ratelimit.py            pembatas percobaan login dan OTP
+store_config.py         konfigurasi toko
+otp_flow.py             alur verifikasi OTP saat register
+mailer.py               pengiriman email
+midtrans.py             integrasi pembayaran Midtrans
+blueprints/             route per bagian (auth, shop, admin, admin_produk, cart, dst.)
+services/               UserService dan ProductService (akses data)
+templates/              base.html, partials/, admin/
+static/                 css, js (register.js, login.js, filter.js), gambar
+migrations/versions/    0001 baseline, 0002 tambah kolom description
+schema.sql              skema awal database
+seed.py                 mengisi 12 produk awal (dari data/products.json) dan akun admin
+smoke_*.py              skrip uji manual per modul (jalan di database asli, hati-hati)
+docs/                   dokumentasi tambahan
+deploy/                 kamistore.service (systemd)
+gunicorn.conf.py        konfigurasi gunicorn
 ```
 
-## Instalasi
+## Arsitektur singkat
 
-### 1. Clone Repository
+Alur permintaan: **route (blueprint)** menerima request, memanggil **service**, service memakai **model**, dan model terhubung ke **tabel database**.
+
+Catatan: SQLAlchemy dan migration baru diterapkan untuk `User` dan `Product`. Keranjang, pesanan, dan pembayaran masih memakai query langsung lewat `db.py` pada database yang sama, dan akan dipindahkan bertahap.
+
+## Cara menjalankan
+
+### 1. Clone dan siapkan environment
 
 ```bash
 git clone https://github.com/FatihAthala-png/PBL_315-OUTPUT1.git
-```
-
-Masuk ke direktori project:
-
-```bash
 cd PBL_315-OUTPUT1
-```
-
-### 2. Membuat Virtual Environment
-
-Windows:
-
-```bash
 python -m venv venv
-```
-
-Aktifkan virtual environment:
-
-```powershell
-.\venv\Scripts\Activate.ps1
-```
-
-### 3. Install Dependency
-
-```bash
+source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. Menjalankan Aplikasi
+### 2. Isi file `.env`
+
+Salin contoh lalu isi nilainya:
+
+```bash
+cp .env.example .env
+```
+
+| Variabel | Keterangan |
+|---|---|
+| `SECRET_KEY` | Wajib. Aplikasi gagal start kalau kosong. Isi dengan string acak yang panjang. |
+| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Koneksi ke MySQL |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Akun admin yang dibuat oleh `seed.py` |
+| `MAIL_SERVER`, `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP untuk mengirim kode OTP |
+| `OTP_REGISTER` | Isi `0` untuk mematikan OTP. Kalau tidak diisi, OTP aktif selama SMTP terkonfigurasi. |
+| `COOKIE_SECURE` | Isi `1` kalau diakses lewat HTTPS |
+| `LOG_LEVEL`, `LOG_DIR`, `LOG_TO_FILE` | Pengaturan logging (opsional) |
+
+File `.env` tidak boleh di-commit. File ini sudah masuk `.gitignore`.
+
+### 3. Siapkan database
+
+```bash
+mysql -u root -p < schema.sql        # membuat tabel dasar
+flask --app app db upgrade           # menjalankan migration sampai 0002
+python seed.py                       # 12 produk awal dan akun admin
+```
+
+Urutannya penting. Migration `0001` hanya baseline untuk skema dari `schema.sql`, jadi tabel dasar harus dibuat dulu.
+
+### 4. Jalankan aplikasi
+
+Mode pengembangan:
 
 ```bash
 python app.py
 ```
 
-Kemudian buka browser dan akses:
+Mode server (gunicorn, port 8000 secara bawaan):
 
-```text
-http://127.0.0.1:5000
+```bash
+gunicorn -c gunicorn.conf.py app:app
 ```
 
-## Data Produk
+Di server, aplikasi dijalankan lewat systemd dengan nama service `kamistore`:
 
-Data produk saat ini disimpan dalam file:
-
-```text
-data/products.json
+```bash
+sudo systemctl status kamistore
+sudo systemctl restart kamistore      # setelah mengubah .env
 ```
 
-File tersebut digunakan oleh aplikasi sebagai sumber data katalog produk.
+## Migration
 
-Project juga memiliki dependency `mysql-connector-python` sebagai persiapan untuk pengembangan integrasi database MySQL.
-
-## Dokumentasi Design
-
-Dokumentasi desain tersedia pada:
-
-```text
-docs/DESIGN.md
+```bash
+flask --app app db current       # revisi aktif, seharusnya 0002 (head)
+flask --app app db history       # riwayat revisi
+flask --app app db upgrade       # maju ke revisi terbaru
 ```
 
-Dokumentasi tersebut mencakup:
+| Revisi | Isi |
+|---|---|
+| `0001` | Baseline, mengadopsi skema dari `schema.sql` |
+| `0002` | Menambah kolom `description` pada tabel `products` |
 
-* Color system
-* Typography
-* Layout
-* Spacing
-* Komponen UI
-* Product card
-* Header dan navigation
-* Catalog filter
-* Responsive design
+Hati-hati dengan `flask db downgrade`: perintah ini menghapus kolom `description` beserta isinya.
+
+## Logging
+
+Log tampil di konsol dan tersimpan di `logs/kamistore.log` (rotasi 1 MB, 5 cadangan). Kejadian yang dicatat antara lain `LOGIN_OK`, `LOGIN_FAILED`, `RATE_LIMITED`, `OTP_VERIFY`, dan `ADMIN_ACTION`. Sandi tidak pernah dicatat.
+
+```bash
+tail -f logs/kamistore.log
+```
 
 ## Keamanan
 
-Beberapa aspek keamanan yang diterapkan dalam project:
+- Sandi disimpan sebagai hash scrypt, tidak pernah sebagai teks asli.
+- Validasi dilakukan di browser dan diulang di server.
+- Proteksi CSRF di seluruh aplikasi.
+- Sesi dibuat ulang saat login (mencegah session fixation).
+- Pesan gagal login sengaja umum agar daftar email terdaftar tidak bocor.
+- Kode OTP tidak disimpan di database. Kode dihitung ulang dari `SECRET_KEY`, email, dan nonce.
+- Akses admin dijaga dekorator `admin_required`, dan role dibaca dari database pada setiap request.
 
-* Password diproses menggunakan password hashing.
-* Password tidak disimpan dalam bentuk teks biasa.
-* File konfigurasi sensitif dapat dikecualikan melalui `.gitignore`.
-* Data pengguna pada contoh pesanan tidak menggunakan informasi sensitif secara langsung.
+Batasan yang diketahui: penghitung rate limit dan OTP disimpan di memori proses, jadi hilang saat service di-restart dan hanya akurat dengan satu worker gunicorn.
 
-## Pengembangan Selanjutnya
+## Akun awal
 
-Pengembangan yang dapat dilakukan pada versi berikutnya:
+Akun admin dibuat oleh `seed.py` dari `ADMIN_EMAIL` dan `ADMIN_PASSWORD` di `.env`. Pengguna yang mendaftar lewat halaman register otomatis berperan `customer`.
 
-1. Integrasi database MySQL secara penuh.
-2. Sistem keranjang dan checkout.
-3. Integrasi payment gateway.
-4. Penyimpanan wishlist ke database.
-5. Integrasi API tracking jasa pengiriman.
-6. Dashboard admin.
-7. Manajemen produk dan stok.
-8. Sistem manajemen pesanan.
-9. Peningkatan sistem autentikasi dan authorization.
+## Tim
 
-## Repository
+Kelompok PBL 315, Politeknik Negeri Batam.
 
-Repository project:
+| Nama | Bagian | Branch |
+|---|---|---|
+| Imam | Fondasi, database, keamanan, logging, migrasi, deployment, dokumentasi | `chore/fondasi-dan-docs` |
+| Fatih | Login, register, profil, OTP, verifikasi email, reset sandi | `feat/auth-dan-profil` |
+| Rai | Beranda, katalog, detail produk, wishlist, UI bersama | `feat/etalase-katalog` |
+| Danar | Keranjang, checkout, pesanan, pelacakan, pembayaran Midtrans | `feat/keranjang-checkout-pesanan` |
+| Alya | Panel admin, manajemen produk/pengguna/pesanan/laporan, media | `feat/panel-admin` |
 
-```text
-https://github.com/FatihAthala-png/PBL_315-OUTPUT1
-```
+## Alur kontribusi
 
-## Project
+- Jangan push langsung ke `main`. Satu tugas satu branch, lalu buka Pull Request.
+- Minimal 1 review sebelum merge (Squash and merge).
+- Stage file satu per satu, hindari `git add .`.
+- Jangan commit `.env`, password, token, atau API key.
+- Perubahan model/tabel, dependensi, atau konfigurasi lintas modul dibahas di grup dulu.
 
-**KAMISTORE**
+## Lisensi
 
-PBL 315
-E-Commerce Web Application
+Proyek ini dibuat untuk keperluan perkuliahan PBL, Politeknik Negeri Batam.
